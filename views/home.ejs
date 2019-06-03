@@ -1,0 +1,150 @@
+<% include partials/header %>
+
+<div id="wrapper">
+  <!-- Sidebar -->
+
+  <% include partials/admin/adminMenu %>
+
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <!--Margin Top is new-->
+    <div class="container-fluid page-content-div" style="padding:0">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+
+
+
+          <style>
+            body {
+              color: #575757 !important;
+            }
+
+            .content-div {
+              margin-top: 2%;
+              width: 100%;
+            }
+
+            .null-link {
+              color: black
+            }
+
+            .null-link:hover {
+              color: black;
+              text-decoration: none;
+            }
+
+            .titleCase {
+              text-transform: capitalize;
+            }
+
+            .panel-main-div:hover {
+              box-shadow: 0 3px 10px 0 rgba(115, 143, 147, .2);
+            }
+
+            @media(max-width: 768px) {
+              .content-div {
+                margin-top: 5%;
+                width: 100% !important;
+              }
+            }
+          </style>
+
+          <div class="content-div">
+            <div class="container">
+              <div class="card allSidesSoft" style="background:rgb(249, 249, 249)">
+                <div class="card-body">
+
+
+                  <div class="d-flex pc">
+                    <div class="image-container">
+                      <img src="../upload/Profile/default.png" id="user-profile-image"
+                        style="width: 150px; height: 150px" class="img-thumbnail allSidesSoft">
+                    </div>
+                  </div>
+
+
+
+
+                  <br>
+                  <br>
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Email</div>
+                      <div class="panel-body"><%= data.Email %></div>
+                    </div>
+                  </div>
+
+
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Name</div>
+                      <div class="panel-body titleCase"><%= data.Name %></div>
+                    </div>
+                  </div>
+
+
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">City</div>
+                      <div class="panel-body titleCase"><%= data.City %></div>
+                    </div>
+                  </div>
+
+
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Gender</div>
+                      <div class="panel-body titleCase" id="dobtext"><%= data.Gender %></div>
+                    </div>
+                  </div>
+
+
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Phone</div>
+                      <div class="panel-body"><%= data.Phone %></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  var menu = document.getElementById("menu");
+
+  //var sideBtn = document.getElementById("sideBtn");
+  var pageContentWrapper = document.getElementById("page-content-wrapper");
+  var span = menu.getElementsByTagName("span");
+  function toggleMenu() {
+    if (menu.style.width == '250px') {
+      menu.style.width = '50px';
+      pageContentWrapper.style.marginLeft = '0px';
+      for (var i = 0; i < span.length; i++) {
+        span[i].style.display = 'none';
+      }
+    } else {
+      menu.style.width = '250px';
+      pageContentWrapper.style.marginLeft = '70px';
+      setTimeout(function () {
+        for (var i = 0; i < span.length; i++) {
+          span[i].style.display = 'inline';
+        }
+      }, 210);
+
+    }
+  }
+</script>
+</body>
+
+
+</html>
