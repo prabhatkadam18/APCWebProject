@@ -1,9 +1,10 @@
-<% include partials/header %>
+<%- include("partials/header",{user: user}) %>
 
 <div id="wrapper">
   <!-- Sidebar -->
-
+  
   <% include partials/admin/adminMenu %>
+
 
   <div id="page-content-wrapper" style="padding:0;margin-top:60px">
     <!--Margin Top is new-->
@@ -61,52 +62,41 @@
                     </div>
                   </div>
 
-
-
-
                   <br>
                   <br>
 
                   <div class="col-sm-6">
                     <div class="panel panel-default allSidesSoft panel-main-div">
                       <div class="panel-heading">Email</div>
-                      <div class="panel-body"><%= data.Email %></div>
+                      <div class="panel-body"><%= user.Email %></div>
                     </div>
                   </div>
-
-
 
                   <div class="col-sm-6">
                     <div class="panel panel-default allSidesSoft panel-main-div">
                       <div class="panel-heading">Name</div>
-                      <div class="panel-body titleCase"><%= data.Name %></div>
+                      <div class="panel-body titleCase"><%= user.Name %></div>
                     </div>
                   </div>
-
-
 
                   <div class="col-sm-6">
                     <div class="panel panel-default allSidesSoft panel-main-div">
                       <div class="panel-heading">City</div>
-                      <div class="panel-body titleCase"><%= data.City %></div>
+                      <div class="panel-body titleCase"><%= user.City %></div>
                     </div>
                   </div>
-
-
 
                   <div class="col-sm-6">
                     <div class="panel panel-default allSidesSoft panel-main-div">
                       <div class="panel-heading">Gender</div>
-                      <div class="panel-body titleCase" id="dobtext"><%= data.Gender %></div>
+                      <div class="panel-body titleCase" id="dobtext"><%= user.Gender %></div>
                     </div>
                   </div>
-
-
 
                   <div class="col-sm-6">
                     <div class="panel panel-default allSidesSoft panel-main-div">
                       <div class="panel-heading">Phone</div>
-                      <div class="panel-body"><%= data.Phone %></div>
+                      <div class="panel-body"><%= user.Phone %></div>
                     </div>
                   </div>
 

@@ -1,0 +1,98 @@
+<div id="sidebar-wrapper" style="margin-top:60px">
+  <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+
+    <li class="mobile-view-dp">
+      <div style="margin-right: 10px">
+        <center>
+          <img src="../upload/Profile/default.png" style="height: 60px;width: 60px;border-radius:50%">
+        </center>
+      </div>
+    </li>
+
+    <li class="onlyForPcNav">
+      <a onclick="openSideNav()">
+        <span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-bars fa-stack-1x "></i>
+        </span>cq</a>
+    </li>
+
+
+    <li id="home-nav">
+      <a href="/profile"><span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-home fa-stack-1x "></i></span><% user.Name %></a>
+    </li>
+
+
+    <li id="communities">
+      <a href="/communities"><span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-list-alt fa-stack-1x "></i></span>Communities</a>
+    </li>
+
+    <li id="change-password-nav">
+      <a href="/changePassword"><span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-lock fa-stack-1x "></i></span>Change Password</a>
+    </li>
+
+    <li>
+      <a onclick="logout()"><span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-sign-out-alt fa-stack-1x "></i></span>Logout</a>
+    </li>
+
+  </ul>
+</div>
+
+<script type="text/javascript">
+  $("#menu-toggle").click(function (e) {
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled");
+  });
+
+  $("#menu-toggle-pc").click(function (e) {
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled-pc");
+    $('#menu ul').hide();
+  });
+
+  //----------------------On Hoover or onclick menuBar-------------------------------
+  function openSideNav() {
+    $("#wrapper").toggleClass("toggled-pc");
+    $('#menu ul').hide();
+  }
+  // $("#sidebar-wrapper").hover(function(){
+  //   $("#wrapper").toggleClass("toggled-pc");
+  //   $('#menu ul').hide();
+  // });
+  //----------------------On Hoover or onclick menuBar-------------------------------
+
+  function initMenu() {
+    // $("#wrapper").toggleClass("toggled-pc");
+    // $('#menu ul').hide();
+
+    $('#menu ul').hide();
+    $('#menu ul').children('.current').parent().show();
+    $('#menu li a').click(
+      function () {
+        var checkElement = $(this).next();
+        if ((checkElement.is('ul')) && (checkElement.is(':visible'))) {
+          return false;
+        }
+        if ((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
+          $('#menu ul:visible').slideUp('normal');
+          checkElement.slideDown('normal');
+          return false;
+        }
+      }
+    );
+  }
+  $(document).ready(function () {
+    initMenu();
+  });
+</script>
+
+<script>
+
+  function logout() {
+    location.assign('/logout');
+  }
+
+</script>

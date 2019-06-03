@@ -1,73 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <script type="text/javascript">window["_gaUserPrefs"] = { ioo: function () { return true; } }</script>
-    <meta charset="UTF-8">
-    <title>Document</title>
+  <script type="text/javascript">window["_gaUserPrefs"] = { ioo: function () { return true; } }</script>
+  <meta charset="UTF-8">
+  <title>Document</title>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
-    <link rel="stylesheet" href="../stylesheets/all.css">
-    <link rel="stylesheet" href="../stylesheets/style.css">
-    <link rel="stylesheet" href="../stylesheets/sidenav.css">
-    <link rel="stylesheet" href="../stylesheets/dataTables.bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+  <link rel="stylesheet" href="../stylesheets/all.css">
+  <link rel="stylesheet" href="../stylesheets/style.css">
+  <link rel="stylesheet" href="../stylesheets/sidenav.css">
+  <link rel="stylesheet" href="../stylesheets/dataTables.bootstrap.min.css">
 
-    <link rel="stylesheet" href="../stylesheets/CommunityStyle.css">
-    <link rel="stylesheet" href="../stylesheets/CrazyGraphics.css">
-    <link rel="stylesheet" href="../stylesheets/jquery-confirm.min.css">
-    <link rel="stylesheet" href="../stylesheets/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="../stylesheets/notie.min.css">
-    <link rel="stylesheet" href="../stylesheets/select2.min.css">
-    <link rel="stylesheet" href="../stylesheets/select2BootstrapTheme.css">
-    <link rel="stylesheet" href="../stylesheets/trumbowyg.css">
+  <link rel="stylesheet" href="../stylesheets/CommunityStyle.css">
+  <link rel="stylesheet" href="../stylesheets/CrazyGraphics.css">
+  <link rel="stylesheet" href="../stylesheets/jquery-confirm.min.css">
+  <link rel="stylesheet" href="../stylesheets/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="../stylesheets/notie.min.css">
+  <link rel="stylesheet" href="../stylesheets/select2.min.css">
+  <link rel="stylesheet" href="../stylesheets/select2BootstrapTheme.css">
+  <link rel="stylesheet" href="../stylesheets/trumbowyg.css">
 
-    <link rel="stylesheet" href="../stylesheets/datatable.css">
-    <link rel="stylesheet" href="../stylesheets/CustomDatatable.css">
-    <link rel="stylesheet" href="../stylesheets/dataTables.fontAwesome.css">
-    
-    <script src="../Plugins/js/jquery.min.js"></script>
-    <script src="../javascripts/Common.js"></script>
-    <script src="../javascripts/helper/validation.js"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css">
-    <script src="../Plugins/js/jquery.dataTables.min.js"></script>
+  <link rel="stylesheet" href="../stylesheets/datatable.css">
+  <link rel="stylesheet" href="../stylesheets/CustomDatatable.css">
+  <link rel="stylesheet" href="../stylesheets/dataTables.fontAwesome.css">
+
+  <script src="../Plugins/js/jquery.min.js"></script>
+  <script src="../javascripts/Common.js"></script>
+  <script src="../javascripts/helper/validation.js"></script>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css">
+  <script src="../Plugins/js/jquery.dataTables.min.js"></script>
 
 </head>
 
 <body>
 
 
-    <nav class="navbar navbar-default-bar no-margin navbar-bar-head-fixed" id="nav-header">
+  <nav class="navbar navbar-default-bar no-margin navbar-bar-head-fixed" id="nav-header">
 
-        <div class="navbar-header fixed-brand">
-            <button type="button" class="navbar-toggle collapsed" onclick="toggleMenu()" data-toggle="collapse"
-                id="menu-toggle">
-                <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
-            </button>
+    <div class="navbar-header fixed-brand">
+      <button type="button" class="navbar-toggle collapsed" onclick="toggleMenu()" data-toggle="collapse"
+        id="menu-toggle">
+        <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+      </button>
 
-            <span class="label label-success mobile" style="margin-top:20px;float:right">Admin</span>
+      <span class="label label-success mobile" style="margin-top:20px;float:right"><%= user.Name %></span>
 
-            <a class="navbar-brand" href="#">cq</a>
-        </div>
+      <a class="navbar-brand" href="#">cq</a>
+    </div>
 
-        <div class="none-mobile-view-dp">
-            <img src="../upload/Profile/default.png" style="height: 40px" class="profilePic">
+    <div class="none-mobile-view-dp">
+      <img src = "<%=user.ProfilePic %>" id="headerImage" style="height: 40px" class="profilePic">
 
-            <span class="label label-success" style="float:right;margin-top:22px;margin-left:5px">Admin</span>
+      <span class="label label-success" style="float:right;margin-top:22px;margin-left:5px"><%=user.Role%></span>
 
-            <span class="label label-warning" style="float:right;margin-top:22px;">superadmin</span>
-        </div>
+      <span class="label label-warning" style="float:right;margin-top:22px;"><%= user.Name%></span>
+    </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="">
 
-                    <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-pc">
-                        <span class="glyphicon glyphicon-th-large" aria-hidden="true">
-                        </span>
-                    </button>
+          <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-pc">
+            <span class="glyphicon glyphicon-th-large" aria-hidden="true">
+            </span>
+          </button>
 
-                </li>
-            </ul>
-        </div>
-    </nav>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <script>
+    var headerImage = document.getElementById('headerImage');
+    headerImage.addEventListener('click',function(){
+      location.assign('/editprofile');
+    });
+  </script>

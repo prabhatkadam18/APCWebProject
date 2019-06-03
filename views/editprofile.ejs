@@ -1,0 +1,117 @@
+<%- include("partials/header",{user: user}) %>
+
+<div id="wrapper">
+
+  <% include partials/admin/adminMenu %>
+
+
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+
+
+
+
+          <style>
+            body {
+              color: #575757 !important;
+            }
+
+            .content-div {
+              margin-top: 2%;
+              width: 100%;
+            }
+
+            .null-link {
+              color: black
+            }
+
+            .null-link:hover {
+              color: black;
+              text-decoration: none;
+            }
+
+            .panel-main-div:hover {
+              box-shadow: 0 3px 10px 0 rgba(115, 143, 147, .2);
+            }
+
+            @media(max-width: 768px) {
+              .content-div {
+                margin-top: 5%;
+                width: 100% !important;
+              }
+            }
+          </style>
+
+          <div class="profile-pic-center-main-div mobile" style="margin-bottom:80px">
+            <img src="/Upload/Profile/default.png" class="profile-pic-center allSides">
+          </div>
+
+          <div class="content-div">
+            <div class="container">
+              <div class="card allSidesSoft" style="background:rgb(249, 249, 249)">
+                <div class="card-body">
+
+
+                  <div class="d-flex pc">
+                    <div class="image-container">
+                      <img src="/Upload/Profile/default.png" id="user-profile-image" style="width: 150px; height: 150px"
+                        class="img-thumbnail allSidesSoft">
+                    </div>
+                  </div>
+
+
+                  <div class="form-group">
+                    <a href="/edituserprofile" class="btn btn-primary pull-right" style="margin-right:15px">Edit</a>
+                  </div>
+
+                  <br>
+                  <br>
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Email</div>
+                      <div class="panel-body"><%= user.Email %></div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Name</div>
+                      <div class="panel-body titleCase"><%= user.Name %></div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">City</div>
+                      <div class="panel-body titleCase"><%= user.City %></div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Gender</div>
+                      <div class="panel-body titleCase" id="dobtext"><%= user.Gender %></div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6">
+                    <div class="panel panel-default allSidesSoft panel-main-div">
+                      <div class="panel-heading">Phone</div>
+                      <div class="panel-body"><%= user.Phone %></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

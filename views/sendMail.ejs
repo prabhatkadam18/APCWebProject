@@ -21,6 +21,7 @@
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" href="../Plugins/css/trumbowyg.css">
 
 	
 <!--===============================================================================================-->
@@ -38,14 +39,19 @@
 					Get in touch
 				</span>
 
+				<div class="wrap-input1 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+					<input class="input1" type="text" name="from" placeholder="from" disabled="disabled" value=<%=sender.Email%>>
+					<span class="shadow-input1"></span>
+				</div>
+
+
 				<div class="wrap-input1 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
-					<input class="input1" type="text" name="to" placeholder="To" disabled="disabled" value = <%=reciever.Email%>  >
-					<% console.log(reciever) %>
+					<input class="input1" type="text" name="to" placeholder="To" >
 					<span class="shadow-input1"></span>
 				</div>
 
 				<div class="wrap-input1 validate-input" data-validate="Subject is required">
-					<input hidden class="input1" type="text" name="name" value= <%=reciever.Name%>>
+					<input hidden class="input1" type="text" name="name" value= <%=sender.Name%>>
 					<span class="shadow-input1"></span>
 				</div>
 
@@ -101,13 +107,17 @@
 
 <!--===============================================================================================-->
 	<script src="js/main.js"></script>
-
+<script src="../Plugins/js/trumbowyg.min.js"></script>
 
 </body>
 
 <script>
+	/*
   CKEDITOR.replace('message', {
 		customConfig: '/ckeditor_settings/config.js'
-	});
+	}); */
+	$.trumbowyg.svgPath = '../images/icons/icons.svg';
+	$('#message').trumbowyg();
+	
 </script>
 </html>

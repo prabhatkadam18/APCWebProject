@@ -49,6 +49,7 @@ var userSchema = new mongoose.Schema({
   City: String,
   Role: String,
   DOB: Date,
+  ProfilePic: String,
   Status: String
 });
 
@@ -88,6 +89,8 @@ app.post('/login', function (req, res) {
       user.Gender = data[0].Gender;
       user.Phone = data[0].Phone;
       user.City = data[0].City;
+      user.Role = data[0].Role;
+      user.ProfilePic = data[0].ProfilePic;
       user.valid = 1;
       //console.log(user);
       res.send(user);
@@ -113,14 +116,14 @@ app.get('/session',(req, res) => {
 });
 
 app.get('/profile', authenticate, function (req, res) {
-  //console.log(user);
-  res.render('home', { data: user });
+  console.log(user);
+  res.render('home', { user: user });
 });
 
 var exists = 0;     // 0: Does Not Exist ,   1: Exists ,   2: Created Successfully
 app.get('/adduser', authenticate, function (req, res) {
   //console.log('exists = '+ exists);
-  res.render('adduser', {exists: exists});
+  res.render('adduser', {exists: exists, user: user});
 });
 
 app.post('/admin/adduser', function (req, res) {
@@ -143,6 +146,7 @@ app.post('/admin/adduser', function (req, res) {
       obj.Gender = "Male";
       obj.City = req.body.city;
       obj.Role = req.body.roleoptions;
+      obj.ProfilePic = "upload/Profile/default.png";
       users.create(obj, function (err, res) {
         if (err) {
           res.send(err);
@@ -159,9 +163,13 @@ app.post('/admin/adduser', function (req, res) {
   
 });
 
-app.get('/admin/userlist',(req,res)=>{
-  res.render('userlist');
+app.get('/editprofile',(req,res)=>{
+  res.render('editprofile',{user: user});
 });
+
+app.get('/edituserprofile',(req,res)=>{
+  res.render('edituserprofile',{user: user});
+})
 
 app.get('/admin/profile', authenticate, function (req, res) {
   //console.log(user);
@@ -173,7 +181,7 @@ var passFlag = 0;   // 0: Dont Show any alerts ,  1: Password Changed ,  2: Inco
 app.get('/changepassword', authenticate, function (req, res) {
   //console.log(passFlag);
   passFlag = 0;
-  res.render('changepassword',{ flag: passFlag });
+  res.render('changepassword',{ flag: passFlag, user: user });
 });
 
 app.post('/user/changepassword',(req,res)=>{
@@ -208,14 +216,14 @@ app.post('/user/changepassword',(req,res)=>{
 
 app.get('/sendMail', authenticate, (req, res) => {
   //console.log(user.Email);
-  res.render('sendMail', { reciever: user });
+  res.render('sendMail', { sender: user });
 });
 
 app.post('/send', (req, res) => {    // route was /admin/send
   //console.log(req.body);
   const output = `
-      <h2>Hi! ${req.body.name} This Is a Mail from app.js</h2><br>
-      <h4>Sent Message: <h4>
+      <h2>Hi! This Is a Mail from ${req.body.name}</h2><br>
+      <h4>Sent Message: </h4>
       <p>${req.body.message}</p>
     `;
   let transporter = nodemailer.createTransport({
@@ -237,8 +245,8 @@ app.post('/send', (req, res) => {    // route was /admin/send
   //console.log('"NODEMAILER👻" <' + process.env.EMAIL + '>');
 
   transporter.sendMail({
-    from: '"NODEMAILER👻" <'+process.env.EMAIL+'>', // sender address
-    to: user.Email, // list of receivers
+    from: `"NodeMailer"<${user.Email}>`, // sender address
+    to: req.body.to, // list of receivers
     subject: req.body.subject, // Subject line
     html: output // html body
   }, function (err, res) {
@@ -256,19 +264,25 @@ app.post('/send', (req, res) => {    // route was /admin/send
 
 //          USERLIST            //
 
-
-app.post('/getusers',authenticate,(req,res)=>{
-  users.find({},(err,data)=>{
+app.get('/admin/userlist', (req, res) => {
+  users.find((err,data)=>{
     if(err){
       console.log(err);
       throw err;
     }
-    else{
-      console.log(data);
-      res.send("CHECK CONSOLE");
-    }
+    console.log(data);
+    console.log(data.length);
+    res.render('userlist', { user: user, userlist: data});
   });
+  //console.log(obj);
+  
 });
+
+
+
+
+
+//////////////////////////////////////////
 
 
 

@@ -1,12 +1,13 @@
-<% include partials/header %>
+<%- include("partials/header",{user: user}) %>
 
 <div id="wrapper">
 
   <% include partials/admin/adminMenu %>
+
   <style>
-  table.dataTable tbody td {
-    padding: 4px 10px;
-}
+    table.dataTable tbody td {
+      padding: 4px 10px;
+    }
   </style>
   <div id="page-content-wrapper" style="padding:0;margin-top:60px">
     <div class="container-fluid page-content-div" style="padding:0">
@@ -34,7 +35,8 @@
               <span class="glyphicon glyphicon-refresh"></span> Refresh
             </button>
             <br><br><br>
-            <table class="table table-striped table-bordered nowrap dataTable no-footer" id="usertable" style="width: 100%; display: table;">
+            <table class="table table-striped table-bordered nowrap dataTable no-footer" id="usertable"
+              style="width: 100%; display: table;">
               <thead>
                 <tr role="row">
                   <th class="tableId sorting_disabled">User Id</th>
@@ -46,49 +48,18 @@
                   <th class="tableAction sorting_disabled">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr >
-                  <td class=" tableId">5cf289340a79ed143952597c</td>
-                  <td class="tableUname sorting_1">00000@gmail.com</td>
-                  <td class=" tablePhone">4343243234</td>
-                  <td class=" tableCity">342</td>
-                  <td class=" tableStatus">pending</td>
-                  <td class=" tableRole">user</td>
-                  <td class=" tableAction">
-                    <center>
-                      <a class="btn btn-primary btn-sm emailbtn actionbtns" style="background:#000">
-                        <span class="fa fa-envelope" style="color:#fff"></span>
-                      </a>
-                      <a class="btn btn-primary btn-sm editbtn actionbtns">
-                        <span class="fa fa-edit"></span>
-                      </a>
-                      <a class="btn btn-warning btn-sm activebtn actionbtns" id="">
-                        <span class="fa fa-times-circle"></span>
-                      </a>
-                    </center>
-                  </td>
-                </tr>
-                <tr>
-                  <td class=" tableId">5cghhghhuy143952597c</td>
-                  <td class="tableUname sorting_1">abc@gmail.com</td>
-                  <td class=" tablePhone">43384443234</td>
-                  <td class=" tableCity">3pdh</td>
-                  <td class=" tableStatus">Confirmed</td>
-                  <td class=" tableRole">Admin</td>
-                  <td class=" tableAction">
-                    <center>
-                      <a class="btn btn-primary btn-sm emailbtn actionbtns" style="background:#000">
-                        <span class="fa fa-envelope" style="color:#fff"></span>
-                      </a>
-                      <a class="btn btn-primary btn-sm editbtn actionbtns">
-                        <span class="fa fa-edit"></span>
-                      </a>
-                      <a class="btn btn-warning btn-sm activebtn actionbtns" id="">
-                        <span class="fa fa-times-circle"></span>
-                      </a>
-                    </center>
-                  </td>
-                </tr>
+              <tbody id="tbody">
+                <% for(var i=0; i< userlist.length; i++){ %>
+                  <tr>
+                    <td style="display: none"></td>
+                    <td><%=userlist[i].Email%></td>
+                    <td><%=userlist[i].Phone%></td>
+                    <td><%=userlist[i].City%></td>
+                    <td><%=userlist[i].Status%></td>
+                    <td><%=userlist[i].Role%></td>
+                    <td></td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -101,34 +72,39 @@
   </body>
   <script>
     var table = $(document).ready(function () {
-      $('#usertable').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-          "url": "/getusers",
-          "type": "POST"
-        },
-        "columns": [
-          { "data": "email" },
-          { "data": "phone" },
-          { "data": "city" },
-          { "data": "status" },
-          { "data": "role" },
-          { "data": "null" }
-        ]
-      });
-      
+
+      $('#usertable').DataTable();
+      //    columns: [
+      //     { data: 'email' },
+      //     { data: 'phone' },
+      //     { data: 'city' },
+      //     { data: 'status' },
+      //     { data: 'role' },
+      //     { data: 'null' }
+      //   ]
+      // });
+      //   "ajax": {
+      //     "url": "/getusers",
+      //     "type": "POST"
+      //   },
+      //   "columns": [
+      //     { "data": "email" },
+      //     { "data": "phone" },
+      //     { "data": "city" },
+      //     { "data": "status" },
+      //     { "data": "role" },
+      //     { "data": "null" }
+      //   ]
+      // });
+      // console.log();
+      // draw();
+
+
     });
 
-    function refresh(){
-      t.row.add([
-        counter + '.1',
-        counter + '.2',
-        counter + '.3',
-        counter + '.4',
-        counter + '.5'
-      ]).draw(false);
-    }
+    // function refresh(){
+    //   table.draw();
+    // }
   </script>
 
   </html>
