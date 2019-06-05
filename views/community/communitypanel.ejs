@@ -1,0 +1,115 @@
+<%- include("../partials/header",{user: user}) %>
+
+<div id="wrapper">
+
+
+  <%- include("../partials/community/communityMenu",{user: user}) %>
+
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+
+          <div class="community-header-top" style="height:50px;padding-top:6px;">
+            <div class="col-sm-12 community-sub-head">
+              <a class="btn community-head-btn active" href="/community/communitypanel">
+                <i class="fa fa-users"></i>
+              </a>
+              <a class="btn community-head-btn" style="margin-left:10px" href="/community/list">
+                <i class="fa fa-search"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="container" style="padding:0">
+            <div class="col-sm-12">
+              <div class="panel panel-default allSidesSoft community-panel-main-div">
+                <div class="panel-heading community-panel-heading">
+
+                  <p style="color:white;margin-top:6px;font-weight:bold">My Communities</p>
+
+                  <% if(user.Role != 'user'){ %>
+                  <a href="/community/AddCommunity" class="btn btn-info community-panel-btn"
+                    style="float:right;margin:-35px 5px 0 0">Create</a>
+                  <% } %>
+                </div>
+                <% for(var i=0; i < data.length ;i++){ %>
+                <% if(data[i].Owner == user._id){ %>
+                <div class="panel-body" style="padding-bottom:0">
+                  <div id="can-create-community">
+                    <div class="col-sm-12 col-xs-12 myCommunity community-div"
+                      style="margin-top:5px;margin-bottom: 10px;" id="can<%= data[i]._id %>">
+                      <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1">
+                        <a href="/community/discussion/<%= data[i]._id %>"><img
+                            src="/upload/Community/<%= data[i].CommunityPic %>" class="cpic"></a>
+                      </div>
+                      <div class="col-sm-10 col-xs-7" style="padding-top:25px;padding-bottom:5px;overflow:scroll">
+                        <p style="margin:0"><a class="comnametxt" href="/community/discussion/<%= data[i]._id %>">
+                            <%= data[i].Name %> </a> &nbsp;&nbsp;&nbsp;
+
+                          <a class="comnametxt-user"
+                            href="/community/manageCommunity/<%= data[i]._id %>">Requests(<%= data[i].Requests.length %>)</a>
+                        </p>
+                      </div>
+                      <div class="col-sm-1 col-xs-2" style="padding:0"><a class="community-short-btn"
+                          href="/community/manageCommunity/<%= data[i]._id %>" style="float:rignt"><label
+                            class="label label-success" style="cursor:pointer !important;"><i
+                              class="fa fa-cogs"></i></label></a></div>
+                    </div>
+                  </div>
+                </div>
+                <% } %>
+
+                  <% if(data[i].m == 1){ %>
+                    <div class="panel-body" style="padding-top:0;padding-bottom:0">
+                      <div id="community-that-am-in">
+                        <div class="col-sm-12 col-xs-12 joinedCommunity community-div" style="margin-top:5px;"
+                          id="can<%= data[i]._id %>">
+                          <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1"><a
+                              href="/community/discussion/<%= data[i]._id %>"><img
+                                src="/upload/Community/<%= data[i].CommunityPic %>" class="cpic"></a></div>
+                          <div class="col-sm-10 col-xs-7" style="padding-top:25px;padding-bottom:5px;overflow:scroll">
+                            <p style="margin:0"><a class="comnametxt"
+                                href="/community/discussion/<%= data[i]._id %>"><%= data[i].Name %></a>&nbsp;&nbsp;&nbsp;<a
+                                class="comnametxt-user"
+                                href="/community/communitymembers/<%= data[i]._id %>">Members(<%= data[i].Members.length %>)</a>
+                            </p>
+                          </div>
+                          <div class="col-sm-1 col-xs-2" style="padding:0"></div>
+                        </div>
+                      </div>
+                    </div>
+                  <% } %>
+                  <% if(data[i].r == 1){ %>
+                <div class="panel-body" style="padding-top:0">
+                      <div id="my-pending-commuity">
+                        <div class="col-sm-12 col-xs-12 pendingCommunity community-div" style="margin-top:5px;"
+                          id="can<%= data[i]._id %>">
+                          <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1"><a
+                              href="/community/communityprofile/<%= data[i]._id %>"><img
+                                src="/upload/Community/<%= data[i].CommunityPic %>" class="cpic"></a></div>
+                          <div class="col-sm-10 col-xs-7" style="padding-top:25px;padding-bottom:5px;overflow:scroll">
+                            <p style="margin:0"><a class="comnametxt"
+                                href="/community/communityprofile/<%= data[i]._id %>"><label
+                                  class="label label-danger">Pending</label>&nbsp;&nbsp;&nbsp;<%= data[i].Name %></a>&nbsp;&nbsp;&nbsp;<a
+                                class="comnametxt-user"
+                                style="text-decoration:none;color:black;cursor:context-menu">Members(<%= data[i].Members.length %>)</a>
+                            </p>
+                          </div>
+                          <div class="col-sm-1 col-xs-2" style="padding:0"><a class="community-short-btn"
+                              onclick="cancelRequest()" style="float:right"><label class="label label-danger"
+                                style="cursor:pointer !important;"><i class="fa fa-times"></i></label></a></div>
+                        </div>
+                      </div>
+                </div>
+                <% } %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

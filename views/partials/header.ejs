@@ -32,7 +32,9 @@
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css">
   <script src="../Plugins/js/jquery.dataTables.min.js"></script>
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+  
 </head>
 
 <body>
@@ -52,7 +54,7 @@
     </div>
 
     <div class="none-mobile-view-dp">
-      <img src = "<%=user.ProfilePic %>" id="headerImage" style="height: 40px" class="profilePic">
+      <img src="../.././upload/Profile/<%= user.ProfilePic %>" id="headerImage" style="height: 40px" class="profilePic">
 
       <span class="label label-success" style="float:right;margin-top:22px;margin-left:5px"><%=user.Role%></span>
 
@@ -74,7 +76,7 @@
   </nav>
   <script>
     var headerImage = document.getElementById('headerImage');
-    headerImage.addEventListener('click',function(){
+    headerImage.addEventListener('click', function () {
       location.assign('/editprofile');
     });
   </script>

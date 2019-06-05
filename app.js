@@ -9,6 +9,7 @@ const cookeParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
 var nodemailer = require('nodemailer');
+var multer = require('multer');
 
 const expressValidator = require('express-validator');
 
@@ -48,10 +49,15 @@ var userSchema = new mongoose.Schema({
   Phone: Number,
   City: String,
   Role: String,
-  DOB: Date,
+  DOB: String,
   ProfilePic: String,
-  Status: String
+  Status: String,
+  CommunitiesJoined: mongoose.Schema.Types.ObjectId,        // Array of ->   "ObjectId("...")"
+  CommunitiesOwned: mongoose.Schema.Types.ObjectId,
+  CommunitiesRequested: mongoose.Schema.Types.ObjectId
 });
+
+
 
 var users = mongoose.model('users', userSchema);
 var user = new Object;
@@ -72,8 +78,9 @@ var authenticate = function (req, res, next) {
 }
 
 app.get('/', (req, res) => {
-  if(req.session.isLogin)
+  if(req.session.isLogin){
     res.redirect('/profile');
+  }
   else
     res.render('loginform');
 });
@@ -83,6 +90,7 @@ app.post('/login', function (req, res) {
   users.find({ Email: req.body.username, Password: req.body.password }, (err, data) => {
     if (data.length == 1) {
       //console.log(data);
+      user._id = data[0]._id;
       user.Name = data[0].Name;
       user.Email = data[0].Email;
       user.Password = data[0].Password;
@@ -90,13 +98,19 @@ app.post('/login', function (req, res) {
       user.Phone = data[0].Phone;
       user.City = data[0].City;
       user.Role = data[0].Role;
+      user.DOB = data[0].DOB;
       user.ProfilePic = data[0].ProfilePic;
-      user.valid = 1;
+      user.Status = data[0].Status;
+      user.CommunitiesJoined = data[0].CommunitiesJoined;
+      if (user.Role == 'admin' || user.Role == 'superadmin' || user.Role == 'community builder')
+        user.CommunitiesOwned = data[0].CommunitiesOwned;
+      user.CommunitiesRequested = data[0].CommunitiesRequested;
+      user.validate = 1;
       //console.log(user);
       res.send(user);
     }
     else{
-      user.valid = 0;
+      user.validate = 0;
       res.send(user);
     }
   }); 
@@ -111,50 +125,62 @@ app.get('/session',(req, res) => {
     req.session.isLogin = 1;
     req.session.username = req.body.username;
   }
-  res.redirect('/profile')
+  if(user.Role.toLowerCase() == 'user' || user.Role.toLowerCase()== 'community builder'){
+    res.redirect('/community/communitypanel');
+  }
+  else
+    res.redirect('/profile');
   //res.render('home', { data: user });
 });
 
 app.get('/profile', authenticate, function (req, res) {
-  console.log(user);
+  users.find()
+  //console.log(user);
   res.render('home', { user: user });
 });
 
-var exists = 0;     // 0: Does Not Exist ,   1: Exists ,   2: Created Successfully
+var userExists = 0;     // 0: Does Not Exist ,   1: Exists ,   2: Created Successfully
 app.get('/adduser', authenticate, function (req, res) {
   //console.log('exists = '+ exists);
-  res.render('adduser', {exists: exists, user: user});
+  res.render('adduser', {exists: userExists, user: user});
 });
 
 app.post('/admin/adduser', function (req, res) {
   //console.log(req.body);
-  exists = 0;
+  userExists = 0;
   users.find({ Email: req.body.username}, (err, data) => {
     if (data.length != 0) {
       console.log("User already exists");
       //console.log(data);
-      exists = 1;
+      userExists = 1;
       res.redirect('/adduser');
       //exists = 0;
     }
     else{
       var obj = new Object;
       obj.Name = req.body.fullname;
-      obj.Email = req.body.username.toLowerCase();
+      obj.Email = req.body.username.toLowerCase().trim();
       obj.Password = req.body.password;
       obj.Phone = req.body.phone;
       obj.Gender = "Male";
-      obj.City = req.body.city;
-      obj.Role = req.body.roleoptions;
-      obj.ProfilePic = "upload/Profile/default.png";
+      obj.City = req.body.city.trim().toLowerCase();
+      obj.Role = req.body.roleoptions.trim().toLowerCase();
+      obj.DOB = "";
+      obj.ProfilePic = "default.png";
+      obj.Status = "Pending";
+      obj.CommunitiesJoined = [];
+      if(obj.Role == 'admin' || obj.Role == 'superadmin' || obj.Role == 'community builder')
+        obj.CommunitiesOwned = [];
+      obj.CommunitiesRequested = [];
       users.create(obj, function (err, res) {
         if (err) {
           res.send(err);
           throw err;
         }
         console.log("User Inserted");
-        exists = 2;
+        userExists = 2;
       });
+      delete obj;
       res.redirect('/adduser');
     }
     
@@ -163,11 +189,11 @@ app.post('/admin/adduser', function (req, res) {
   
 });
 
-app.get('/editprofile',(req,res)=>{
+app.get('/editprofile',authenticate,(req,res)=>{
   res.render('editprofile',{user: user});
 });
 
-app.get('/edituserprofile',(req,res)=>{
+app.get('/edituserprofile',authenticate,(req,res)=>{
   res.render('edituserprofile',{user: user});
 })
 
@@ -184,7 +210,7 @@ app.get('/changepassword', authenticate, function (req, res) {
   res.render('changepassword',{ flag: passFlag, user: user });
 });
 
-app.post('/user/changepassword',(req,res)=>{
+app.post('/user/changepassword',authenticate,(req,res)=>{
   //console.log(req.body);
   passFlag = 0;
   if(req.body.oldPassword == user.Password){
@@ -264,18 +290,40 @@ app.post('/send', (req, res) => {    // route was /admin/send
 
 //          USERLIST            //
 
-app.get('/admin/userlist', (req, res) => {
-  users.find((err,data)=>{
+app.get('/admin/userlist', authenticate,(req, res) => {
+  res.render('userlist',{user: user});
+  //console.log(obj);
+});
+
+app.post('/getusers',(req,res)=>{
+  var obj = new Object;
+  var arr = new Array;
+  users.find((err,result)=>{
     if(err){
       console.log(err);
       throw err;
     }
-    console.log(data);
-    console.log(data.length);
-    res.render('userlist', { user: user, userlist: data});
+    obj.recordsTotal = result.length;
+    obj.recordsFiltered = result.length;
+    //console.log(res);
+    for(var i= 0;i<result.length; i++)
+    {
+      arr[i] = new Object;
+      arr[i]._id = result[i]._id;
+      arr[i].Email = (result[i].Email);
+      arr[i].Phone = (result[i].Phone);
+      arr[i].City = (result[i].City);
+      arr[i].Status = (result[i].Status);
+      arr[i].Role = (result[i].Role);
+      arr[i].Actions = null;
+    }
+    obj.data = arr;
+    console.log(obj);
+    res.send(obj);
+    //console.log(arr);
   });
-  //console.log(obj);
-  
+  //res.send(obj);
+ 
 });
 
 
@@ -285,11 +333,205 @@ app.get('/admin/userlist', (req, res) => {
 //////////////////////////////////////////
 
 
+const multerUserConf = {
+  storage: multer.diskStorage({
+    destination: function (req, file, next) {
+      next(null, './public/upload/Profile');
+    },
+    filename: function (req, file, next) {
+      const ext = file.mimetype.split('/')[1];
+      next(null, file.fieldname + '-' + Date.now() + '.' + ext);
+      //console.log(file);
+    }
+  }),
+  fileFilter: function (req, file, next) {
+    if (!file) {
+      next();
+    }
+    const image = file.mimetype.startsWith('image/');
+    if (image) {
+      next(null, true);
+    }
+    else {
+      next({ message: "File not Supported" }, false);
+    }
+  }
+};
+
+
+app.post('/updateUser',multer(multerUserConf).single('profileImage'),(req,res)=>{
+  if (req.file) {
+    //console.log(req.file.filename);
+    var obj = new Object;
+    obj.Name = req.body.fullname;
+    obj.Gender = req.body.gender;
+    obj.Phone = req.body.phone;
+    obj.City = req.body.city;
+    obj.Interests = req.body.interests;
+    obj.AboutJourney = req.body.aboutjourney;
+    obj.ComExpectations = req.body.comExpectations;
+    obj.ProfilePic = req.file.filename;
+    users.updateOne({ _id: user._id },obj,(err,data)=>{
+      delete obj;
+      console.log("updated" + data.ProfilePic );
+      res.redirect('/updateuser');
+    });
+    //users.updateOne({_id: user.id},{ $set: { ProfilePic: req.file.filename }});
+    
+  }
+});
+
+app.get('/updateuser', authenticate,(req,res)=>{
+  users.find({_id: user._id},(err,data)=>{
+    user.Name = data[0].Name;
+    user.Password = data[0].Password;
+    user.Gender = data[0].Gender;
+    user.Phone = data[0].Phone;
+    user.City = data[0].City;
+    user.DOB = data[0].DOB;
+    user.ProfilePic = data[0].ProfilePic;
+    user.Status = data[0].Status;
+    user.CommunitiesJoined = data[0].CommunitiesJoined;
+    user.CommunitiesOwned = data[0].CommunitiesOwned;
+    user.CommunitiesRequested = data[0].CommunitiesRequested;
+    res.redirect('/profile');
+  });
+});
 
 
 
+// //////////////////////////////////////////
+
+// █▀▀ █▀▀█ █▀▄▀█ █▀▄▀█ █░░█ █▀▀▄ ░▀░ ▀▀█▀▀ █░░█
+// █░░ █░░█ █░▀░█ █░▀░█ █░░█ █░░█ ▀█▀ ░░█░░ █▄▄█
+// ▀▀▀ ▀▀▀▀ ▀░░░▀ ▀░░░▀ ░▀▀▀ ▀░░▀ ▀▀▀ ░░▀░░ ▄▄▄█
+
+// //////////////////////////////////////////
 
 
+var communitySchema = new mongoose.Schema({
+  Name: String,
+  Owner: String,      //  ObjectId of OWNER
+  CommunityPic: String,
+  Rule: String,     //Direct or Permission
+  Description: String,
+  Members: [ mongoose.Schema.Types.ObjectId ],
+  Requests: [ mongoose.Schema.Types.ObjectId ]
+});
+var communities = mongoose.model('communities', communitySchema);
+
+var createCommunitySuccess = 0;
+app.get('/community/communitypanel',authenticate,(req,res)=>{
+  createCommunitySuccess = 0;  
+  communities.find({
+    $or: [{ Members: { $in: [user._id] } }, { Requests: { $in: [user._id]}}]}, (err,comm)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    res.render('community/communitypanel', { user: user ,data: comm});
+  });
+  
+});
+
+const multerCommunityConf = {
+  storage: multer.diskStorage({
+    destination: function (req, file, next) {
+      next(null, './public/upload/Community/');
+    },
+    filename: function (req, file, next) {
+      const ext = file.mimetype.split('/')[1];
+      next(null, file.fieldname + '-' + Date.now() + '.' + ext);
+      //console.log(file);
+    }
+  }),
+  fileFilter: function (req, file, next) {
+    if (!file) {
+      next();
+    }
+    const image = file.mimetype.startsWith('image/');
+    if (image) {
+      next(null, true);
+    }
+    else {
+      next({ message: "File not Supported" }, false);
+    }
+  }
+};
+
+
+app.get('/community/addcommunity',authenticate,(req,res)=>{
+  res.render('community/addcommunity', {success: createCommunitySuccess, user: user });
+});
+
+
+app.post('/community/addcommunity', multer(multerCommunityConf).single('communityImage'),(req,res)=>{
+  createCommunitySuccess = 0;
+  var obj = new Object;
+  obj.Name = req.body.communityName;
+  obj.Description = req.body.communityDescription;
+  obj.Rule = req.body.communityMembershipRule;
+  if (req.file) {
+    obj.CommunityPic = req.file.filename;
+  }
+  else{
+    obj.CommunityPic = 'default.jpg';
+  }
+  obj.Owner = user._id;
+
+  communities.create(obj, (err, comm) => {
+    if (err) {
+      console.log(err);
+      throw err;
+    }
+    communities.updateOne({ _id: comm._id }, { $push: { Members: user._id } }, () => {
+      createCommunitySuccess = 1;
+      users.updateOne({_id: user._id}, { $push: { CommunitiesJoined: comm._id , CommunitiesOwned: comm._id}},(err)=>{
+        delete obj;
+        console.log("Community Created");
+        res.redirect('/community/addcommunity');
+      });
+    });
+  });
+});
+
+app.get('/community/list',authenticate,(req,res)=>{
+  communities.find({
+    $and: [{ Members: { $nin: [user._id] } }, { Requests: { $nin: [user._id] } }]
+  },(err,comm)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    res.render('community/communitylist', { user: user, data: comm });
+  });
+  
+});
+
+app.post('/join',(req,res)=>{
+  if(req.body.commType == 'join'){
+    communities.findOneAndUpdate({ _id: req.body.id }, { $push: { Members: user._id } }, (err, comm) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      users.findOneAndUpdate({ _id: user._id }, { $push: { CommunitiesJoined: comm._id } }, (err, d) => {
+        res.send("OK");
+      });
+    }); 
+  }
+  else{
+    communities.findOneAndUpdate({ _id: req.body.id }, { $push: { Requests: user._id } }, (err, comm) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      users.findOneAndUpdate({ _id: user._id }, { $push: { CommunitiesRequested: comm._id } }, (err, d) => {
+        res.send("OK");
+      });
+    });
+  }
+});
 
 
 
@@ -298,6 +540,7 @@ app.get('/admin/userlist', (req, res) => {
 
 app.get('/logout', authenticate, (req, res, next) => {
   req.session.destroy();
+  delete user;
   console.log('Logged Out');
   res.redirect('/');
 });

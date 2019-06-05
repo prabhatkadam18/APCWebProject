@@ -13,7 +13,7 @@ btnSubmit.addEventListener('click', function (event) {
             if(xhttp.status === 200){
                 console.log(this.responseText);
                 data = JSON.parse(this.responseText);
-                if(data.valid == 1){
+                if(data.validate == 1){
                     location.assign('/session');
                 }
                 else{

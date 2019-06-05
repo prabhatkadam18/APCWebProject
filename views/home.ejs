@@ -2,8 +2,11 @@
 
 <div id="wrapper">
   <!-- Sidebar -->
-  
-  <% include partials/admin/adminMenu %>
+  <% if(user.Role.toLowerCase() == 'user'){ %>
+    <%- include("partials/community/communityMenu",{user: user}) %>
+    <% } else { %>
+      <%- include partials/admin/adminMenu %>
+  <% } %>
 
 
   <div id="page-content-wrapper" style="padding:0;margin-top:60px">
@@ -57,7 +60,7 @@
 
                   <div class="d-flex pc">
                     <div class="image-container">
-                      <img src="../upload/Profile/default.png" id="user-profile-image"
+                      <img src="upload/Profile/<%= user.ProfilePic %>" id="user-profile-image"
                         style="width: 150px; height: 150px" class="img-thumbnail allSidesSoft">
                     </div>
                   </div>
@@ -134,7 +137,19 @@
     }
   }
 </script>
+
+<script>
+  var selector = 'ul .active';
+  $(selector).removeClass('active');
+  console.log($('#edit-profile-nav'));
+  if($('#edit-profile-nav'))
+    $('#edit-profile-nav').addClass('active');
+  if($('#home-nav'))
+    $('#home-nav').addClass('active');
+</script>
+
 </body>
+
 
 
 </html>

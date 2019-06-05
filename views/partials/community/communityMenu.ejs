@@ -4,7 +4,7 @@
     <li class="mobile-view-dp">
       <div style="margin-right: 10px">
         <center>
-          <img src="../upload/Profile/default.png" style="height: 60px;width: 60px;border-radius:50%">
+          <img src="../../../upload/Profile/<%= user.ProfilePic %>" style="height: 60px;width: 60px;border-radius:50%">
         </center>
       </div>
     </li>
@@ -17,15 +17,15 @@
     </li>
 
 
-    <li id="home-nav">
+    <li id="edit-profile-nav">
       <a href="/profile"><span class="fa-stack fa-lg pull-left">
-          <i class="fa fa-home fa-stack-1x "></i></span><% user.Name %></a>
+          <i class="fa fa-user fa-stack-1x "></i></span><%= user.Name %></a>
     </li>
 
 
-    <li id="communities">
-      <a href="/communities"><span class="fa-stack fa-lg pull-left">
-          <i class="fa fa-list-alt fa-stack-1x "></i></span>Communities</a>
+    <li id="community-panel-nav">
+      <a href="/community/communitypanel"><span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-users fa-stack-1x "></i></span>Communities</a>
     </li>
 
     <li id="change-password-nav">
@@ -96,3 +96,60 @@
   }
 
 </script>
+<style>
+  .community-name {
+    border: 0;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bold;
+    word-wrap: break-word;
+    font-size: 17px;
+    padding: 12px 0 0 0;
+    outline: none !important;
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  .community-description {
+    border: 0;
+    font-family: 'Open Sans', sans-serif;
+    word-wrap: break-word;
+    font-size: 16px;
+    color: #000;
+    outline: none !important;
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  .totalUsers {
+    padding: 0;
+    margin: 0;
+    font-weight: 600;
+    color: #7D7D7D;
+    text-decoration: none;
+    word-wrap: break-word;
+    text-transform: capitalize;
+  }
+
+  .community-description-full {
+    display: none;
+  }
+
+  @media(max-width:768px) {
+    .community-name {
+      border: 0;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: bold;
+      padding: 15px 0 0 5px;
+      overflow: scroll;
+      word-wrap: break-word;
+      font-size: 15px;
+      color: #000;
+      outline: none !important;
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
+</style>
+<script>
+  var selector = '.nav li';
+  $(selector).removeClass('active');
+  $('#community-panel-nav').addClass('active');
+</script>
+<script src="/javascripts/Common.js"></script>
