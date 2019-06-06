@@ -428,10 +428,23 @@ app.get('/community/communitypanel',authenticate,(req,res)=>{
     if(err){
       console.log(err);
       throw err;
-    }
-    res.render('community/communitypanel', { user: user ,data: comm});
+    } 
+    // for(var i=0;i <comm.length;i++)
+    // {
+    //   for(var j =0;j<comm[i].Members.length;j++)
+    //   {
+    //     comm[i].Members[j].id = comm[i].Members[j]._id;
+    //     if (comm[i].Members[j].id.equals(user._id))
+    //       console.log("Y");
+    //   }  
+    // }
+    // for (var i = 0; i < comm.length; i++) {
+    //   for (var j = 0; j < comm[i].Requests.length; j++) {
+    //     comm[i].Requests[j].id = comm[i].Requests[j]._id;
+    //   }
+    // }
+    res.render('community/communitypanel', { user: user, data: comm });
   });
-  
 });
 
 const multerCommunityConf = {
@@ -490,10 +503,12 @@ app.post('/community/addcommunity', multer(multerCommunityConf).single('communit
         delete obj;
         console.log("Community Created");
         res.redirect('/community/addcommunity');
+    
       });
     });
   });
 });
+
 
 app.get('/community/list',authenticate,(req,res)=>{
   communities.find({
