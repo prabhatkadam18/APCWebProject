@@ -33,12 +33,13 @@
                     style="float:right;margin:-35px 5px 0 0">Create</a>
                   <% } %>
                 </div>
+                <%= console.log(data); %>
                 <% for(var i=0; i < data.length ;i++){ %>
-                <% if(data[i].Owner == user._id){ %>
-                <div class="panel-body" style="padding-bottom:0; padding: 4px;">
+                <% if(data[i].Owner.equals(user._id)){ %>
+                <div class="panel-body" style="padding-bottom:0;">
                   <div id="can-create-community">
                     <div class="col-sm-12 col-xs-12 myCommunity community-div"
-                      style="margin-bottom: 10px;" id="can<%= data[i]._id %>">
+                       id="can<%= data[i]._id %>">
                       <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1">
                         <a href="/community/discussion/<%= data[i]._id %>"><img
                             src="/upload/Community/<%= data[i].CommunityPic %>" class="cpic"></a>
@@ -83,8 +84,8 @@
                 <% } %>
                 <% } %>
                 <% } %>
-                <% for(var i=0; i < data.length ;i++){ %>
-                <% for(var j = 0;j< data[i].Requests.length; j++){ %>
+                <% for(var i = 0; i < data.length ; i++){ %>
+                <% for(var j = 0; j< data[i].Requests.length; j++){ %>
                 <% if(data[i].Requests[j].equals(user._id)){ %>
                 <div class="panel-body" style="padding-top:0">
                   <div id="my-pending-commuity">
@@ -99,9 +100,13 @@
                             style="text-decoration:none;color:black;cursor:context-menu">Members(<%= data[i].Members.length %>)</a>
                         </p>
                       </div>
-                      <div class="col-sm-1 col-xs-2" style="padding:0"><a class="community-short-btn" onclick="cancelRequest()"
-                          style="float:right"><label class="label label-danger" style="cursor:pointer !important;"><i
-                              class="fa fa-times"></i></label></a></div>
+                      <div class="col-sm-1 col-xs-2" style="padding:0">
+                        <a class="community-short-btn" style="float:right" onclick=cancelRequest(`<%= data[i]._id %>`) >
+                        <label class="label label-danger" style="cursor:pointer !important;">
+                              <i class="fa fa-times"></i>
+                            </label>
+                          </a>
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -118,3 +123,24 @@
     </div>
   </div>
 </div>
+<script>
+  function cancelRequest(id){
+    var obj = new Object;
+    obj.id = id;
+    var el = document.getElementById(`can${id}`);
+    console.log(el);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        if (xhttp.status === 200) {
+          if (this.responseText == 'OK') {
+            el.parentNode.removeChild(el);
+          }
+        }
+      }
+    }
+    xhttp.open("POST", "/cancelrequest");
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.send(JSON.stringify(obj));
+  }
+</script>

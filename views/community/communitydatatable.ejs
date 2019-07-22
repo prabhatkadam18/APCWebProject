@@ -1,0 +1,142 @@
+<%- include("partials/header",{user: user}) %>
+
+<div id="wrapper">
+
+  <% include partials/admin/adminMenu %>
+
+  <style>
+    table.dataTable tbody td {
+      padding: 4px 10px;
+    }
+  </style>
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0; margin-left: 20px; margin-right: 20px ">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+          <div style="margin-left:20px;margin-right:20px;margin-top:20px">
+
+
+
+
+          <div class="form-control allSides" id="roleFilterTitle" style="float: left;width:90px;font-weight:bold;">
+            Community List
+          </div>
+          <select onchange="filterRole()" class="form-control filter-button" id="roleFilter" name="filter"
+            style="float: right;margin-left: 10px;">
+            <option name="user" value="">All</option>
+            <option name="user" value="admin">Admins</option>
+            <option name="admin" value="user">Users</option>
+            <option name="commuity manager" value="commuity manager">Community Builder</option>
+          </select>
+          <select onchange="filterStatus()" class="form-control filter-button" id="statusFilter" name="statusFilter"
+            style="float: right;margin-left: 10px;">
+            <option name="user" value="">All</option>
+            <option name="pending" value="pending">Pending</option>
+            <option name="confirmed" value="confirmed">Confirmed</option>
+          </select>
+          <button onclick="refresh()" class="btn btn-default"
+            style="float: right;background-color: #2D312C;color: #fff">
+            <span class="glyphicon glyphicon-refresh"></span> Refresh
+          </button>
+          <br><br><br>
+          <table class="table table-striped table-bordered nowrap dataTable no-footer" id="usertable"
+            style="width: 100%; display: table;">
+            <thead>
+              <tr role="row">
+                <th class="tableId">User Id</th>
+                <th class="ComTableName">Community Name</th>
+                <th class="CommTableRule">Membership Rule</th>
+                <th class="ComTableLocation">Community Location</th>
+                <th class="ComTableAdmin">CommunityOwner</th>
+                <th class="tableRole sorting">Role</th>
+                <th class="tableAction">Actions</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+</body>
+<script>
+  var table = $(document).ready(function () {
+
+
+    $('#communitytable').DataTable({
+      "processing": true,
+      "serverSide": true,
+
+      "ajax": {
+        "url": "/getcommunities",
+        "type": "POST",
+
+      },
+      "columns": [
+        { "data": "_id" },
+        { "data": "Email" },
+        { "data": "Phone" },
+        { "data": "City" },
+        { "data": "Status" },
+        { "data": "Role" },
+        { "data": "Actions", "orderable": false, "searchable": false }
+      ],
+      "order": [[1, "asc"]],
+      "columnDefs": [
+        {
+          "targets": [0],
+          "orderable": false, "visible": false
+        },
+        {
+          "targets": [-1],
+          "render": function (data, type, row, meta) {
+            if (row.Role == 'superuser')
+              return '<center><a class="btn btn-primary btn-sm emailbtn actionbtns" onclick="setMail()" data-toggle="modal" data-target="#popUp" id="emailbtn" style="background:#000"><span class="fa fa-envelope" style="color:#fff"></span></a></center>';
+            else if ((row.Status) == 'Confirmed') {
+              return '<center><a class="btn btn-primary btn-sm emailbtn actionbtns" data-toggle="modal" data-target="#popUp" id="emailbtn" style="background:#000"><span class="fa fa-envelope" style="color:#fff"></span></a><a class="btn btn-primary btn-sm editbtn actionbtns" id="editbtn"><span class="fa fa-edit"></span></a><a class="btn btn-warning btn-sm activebtn actionbtns" id="deactivatebtn"><span class="fa fa-times-circle"></span></a></center>';
+            }
+            else return '<center><a class="btn btn-primary btn-sm emailbtn actionbtns" data-toggle="modal" data-target="#popUp" id="emailbtn" style="background:#000"><span class="fa fa-envelope" style="color:#fff"></span></a><a class="btn btn-primary btn-sm editbtn actionbtns" id="editbtn"><span class="fa fa-edit"></span></a><a class="btn btn-success btn-sm activebtn actionbtns id="activatebtn"><span class="fa fa-check-circle"></span></a></center>';
+          }
+
+        },
+        // {
+        //   "targets": [0],
+        //   "visible": false
+        // }
+      ],
+      "contentType": "application/json"
+
+    });
+    // console.log();
+    // draw();
+
+
+  });
+
+    // function refresh(){
+    //   table.draw();
+    // }
+
+</script>
+<script>
+  var selector = '.nav li';
+  $(selector).removeClass('active');
+  $('#user-list-nav').addClass('active');
+</script>
+<script src="/javascripts/Common.js"></script>
+<script src="../Plugins/js/trumbowyg.min.js"></script>
+<script>
+  $.trumbowyg.svgPath = '../images/icons/icons.svg';
+  $('#body').trumbowyg();
+
+</script>
+<script>
+  function setMail() {
+
+  }
+</script>
+
+</html>

@@ -28,6 +28,13 @@
           <i class="fa fa-users fa-stack-1x "></i></span>Communities</a>
     </li>
 
+    <% if(user.Role.toLowerCase() == 'admin' || user.Role.toLowerCase() == 'superuser'){ %>
+      <li id="switch-asuser-nav">
+        <a onclick="switchState('Switch As Admin')"><span class="fa-stack fa-lg pull-left">
+            <i class="fa fa-toggle-on fa-stack-1x "></i></span>Switch As Admin</a>
+      </li>
+    <% } %>
+
     <li id="change-password-nav">
       <a href="/changePassword"><span class="fa-stack fa-lg pull-left">
           <i class="fa fa-lock fa-stack-1x "></i></span>Change Password</a>

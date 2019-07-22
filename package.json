@@ -15,7 +15,8 @@
     "mongod": "^2.0.0",
     "mongoose": "^5.5.3",
     "multer": "^1.4.1",
-    "nodemailer": "^6.2.1"
+    "nodemailer": "^6.2.1",
+    "passport-github": "^1.1.0"
   },
   "devDependencies": {},
   "scripts": {

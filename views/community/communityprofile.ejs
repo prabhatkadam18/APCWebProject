@@ -1,0 +1,162 @@
+<%- include("../partials/header",{user: user}) %>
+
+<div id="wrapper">
+
+
+  <%- include("../partials/community/communityMenu",{user: user}) %>
+
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+          <div class="community-header-top communityheader-profile-mobile" style="padding-top:6px;position:relative;">
+            <% if(req == 1){ %>
+            <div class="container pc">
+              <button class="btn btn-danger community-panel-btn requestBtn disabled" style="float:right">Requested<i
+                  class="fa fa-ask"></i></button>
+            </div>
+            <% } %>
+            <center>
+              <div class="communityprofile-name-mobile" style="max-height:40px;overflow:scroll">
+                <a href="/community/communityprofile/<%= data._id %>" style="color:white">
+                  <%= data.Name %>
+                </a>
+              </div>
+            </center>
+
+            <center>
+              <a href="/community/communityprofile/<%= data._id %>">
+                <img src="/upload/Community/<%= data.CommunityPic %>" class="mobile img-communityprofile-pic allSides"
+                  style="background:#fff">
+              </a>
+            </center>
+
+          </div>
+          <div class="container community-profile-conatiner">
+            <div class="col-sm-2 col-xs-12 center-mobile pc">
+              <a href="/community/communityprofile/<%= data._id %>">
+                <img src="/upload/Community/<%= data.CommunityPic %>" class="img-communityprofile-pic allSides"
+                  style="background:#fff">
+              </a>
+            </div>
+
+            <div class="col-sm-8 communityprofile-name-pc communityprofile-system">
+              <a href="/community/communityprofile/<%= data._id %>" class="communityprofile-name-pc">
+                <%= data.Name %>
+              </a>
+            </div>
+          </div>
+          <center>
+            <hr style="border-top:2px solid #E6E6E6;width:85%;margin-top:0">
+          </center>
+
+          <div class="container" style="width:94% !important">
+
+            <div class="col-sm-3 col-xs-12">
+              <div class="panel panel-default allSidesSoft" style="border-radius:0">
+              <% if(req == 1){ %>
+
+              <div class="panel-body" style="border:0;border-radius:0">
+                <div class="col-sm-12 col-xs-12 center-all">
+                  <button class="btn btn-primary requestBtn disabled">Requested<i class="fa fa-ask"></i></button>
+                </div>
+              </div>
+              <div class="panel-footer community-panel-sideBtn-link">
+                <p class="center-all" style="margin:0">
+                  <%= data.Members.length %> Members
+                </p>
+              </div>
+            
+              <%} else{ %>
+              <div class="panel-heading" style="border:0;border-radius:0">
+                Members
+                <a href="/community/communitymembers/<%=data._id%>" style="float:right">View all</a>
+              </div>
+              <div class="panel-body" style="border:0;border-radius:0">
+                <div class="col-sm-12 col-xs-12" style="padding:0" id="membersDiv-4joinedUser">
+                  <% for(var i = 0; i < joined.length; i++){ %>
+                  <div class="col-sm-6 col-xs-3 col-md-3 col-lg-3 center-all" style="padding:0;"> <a
+                      href="/viewprofile/<%= joined[i]._id %>" class="communityProfileUserImage"> <img
+                        class="communityProfileUserImage allSidesSoft"
+                        src="/upload/Profile/<%= joined[i].ProfilePic %>"> </a>
+                  </div>
+                  <% } %>
+                </div>
+              </div>
+              <div class="panel-footer community-panel-sideBtn-link">
+
+                <a href="/community/communitymembers/<%= data._id %>" style="">
+                  <%= data.Members.length %> Members
+                </a>
+                <% if(Owner._id.equals(user._id) == 0) { %> 
+                <a onclick=leaveCommunity(`<%= data._id %>`) style="float:right;cursor:pointer">
+                  Leave Community
+                </a>
+                <% } %>
+
+              </div>
+
+              <% } %>
+              </div>
+
+            <div class="panel panel-default allSidesSoft" style="border-radius:0">
+              <div class="panel-heading" style="border:0;border-radius:0">
+                Community Managers
+              </div>
+              <div class="panel-body" style="border:0;border-radius:0">
+                <div id="commuity-owner-detail">
+                  <!--Owner Info-->
+                  <div class="col-sm-12 col-md-12 col-lg-12 adminInfo">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xs-4 center-all"> <a
+                        href="/viewprofile/<%= Owner._id %>"><img src="/upload/Profile/<%= Owner.ProfilePic %>"
+                          class="adminPic allSides"></a> </div>
+                    <div class="col-sm-6 col-md-6 col-lg-8 col-xs-8 adminContent" style="padding:0">
+                      <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" style="padding:0"> <span
+                          class="label label-success" style="margin-top:10px;">Owner</span> </div>
+                      <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" style="overflow:scroll;padding:0;"> <a
+                          href="/viewprofile/<%= Owner._id %>"><%=Owner.Name%></a> </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="commuity-admins-detail">
+                  <!--Admin Info-->
+                </div>
+              </div>
+            </div>
+          </div>
+          <style>
+            .full-description {
+              display: none;
+            }
+
+            .less-description-btn {
+              display: none;
+            }
+          </style>
+          <div class="col-sm-8 col-xs-12 separator-community-admin" style="padding:0 10px 10px 10px;">
+
+            <div class="panel panel-default allSidesSoft" style="border-radius:0">
+              <div class="panel-heading center-all" style="border:0;border-radius:0">
+                About Community
+              </div>
+              <div class="panel-body" style="border:0;border-radius:0;overflow:scroll">
+
+
+                <p class="short-description center-all">
+                  <%= data.Description %>
+                </p>
+                <div class="full-description">
+                  <%= data.Description %>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
