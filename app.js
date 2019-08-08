@@ -277,17 +277,17 @@ app.post('/user/changepassword',authenticate,(req,res)=>{
 /////////////////////////////
 //        NODEMAILER       //
 
-app.get('/sendMail', authenticate, (req, res) => {
-  //console.log(user.Email);
-  res.render('sendMail', { sender: user });
-});
+// app.get('/sendMail', authenticate, (req, res) => {
+//   //console.log(user.Email);
+//   res.render('sendMail', { sender: user });
+// });
 
-app.post('/send', (req, res) => {    // route was /admin/send
+app.post('/sendmail', (req, res) => {    // route was /admin/send
   //console.log(req.body);
   const output = `
       <h2>Hi! This Is a Mail from ${req.body.name}</h2><br>
       <h4>Sent Message: </h4>
-      <p>${req.body.message}</p>
+      <p>${req.body.body}</p>
     `;
   let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -309,7 +309,7 @@ app.post('/send', (req, res) => {    // route was /admin/send
     }
   });
 
-  res.redirect('/profile');
+  res.send("OK");
 });
 
 /////////////////////////////////////////

@@ -64,7 +64,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">×</button>
-                    <h4 class="modal-title" id="usernamePop">Update 00@gmail.com</h4>
+                    <h4 class="modal-title" id="usernamePop">Update <span id ='userNameUpdate'></span></h4>
                   </div>
                   <div class="modal-body">
                     <!------------------------------------------------------------------------------------>
@@ -234,7 +234,7 @@
     setTimeout(function () {
         var buttons = document.getElementsByClassName('activebtn');
         for (var i = 0; i < buttons.length; i++) {
-          console.log(buttons[i]);
+          //console.log(buttons[i]);
           buttons[i].addEventListener('click', function () {
             // console.log();
             // console.log(this.parentNode.parentNode.parentNode.childNodes[0].innerHTML);
@@ -258,10 +258,11 @@
         }
         var buttons = document.getElementsByClassName('deactivebtn');
         for (var i = 0; i < buttons.length; i++) {
-        console.log(buttons[i]);
+        //console.log(buttons[i]);
         buttons[i].addEventListener('click', function () {
           // console.log();
           // console.log(this.parentNode.parentNode.parentNode.childNodes[0].innerHTML);
+          //console.log(this)
           this.setAttribute('id','deactivatebtn');
           $.confirm({
             title: 'Deactivate User?',
@@ -287,63 +288,31 @@
           });
         });
       }
+     
+      
+      //console.log(this.parentNode.parentNode.parentNode.childNodes[0].innerHTML)
+
       }, 800);
 
     // function refresh(){
     //   table.draw();
     // }
+
+    $('#usertable').on('click', 'tr', function () {
+        //console.log($('#usertable').DataTable().row(this).data());
+        var flag = 0;
+        var to = document.getElementById('emailPop');
+        var data = $('#usertable').DataTable().row(this).data();
+        to.value = data.Email;
+          
+      });
     $('#usertable').on('click', 'tr', function () {
       //console.log($('#usertable').DataTable().row(this).data());
       var flag = 0;
-      var to = document.getElementById('emailPop');
+      var to = document.getElementById('userNameUpdate');
       var data = $('#usertable').DataTable().row(this).data();
-      to.value = data.Email;
-      // console.log($('#usertable').DataTable().row(this).data());
-      // console.log($('#usertable tbody tr td:nth-child(6) center a:nth-child(3)'));
-      // if(!flag){
-      //   flag = 1;
-        
-      // }
-      
-      // buttons = document.getElementsByClassName('deactivebtn');
-      // for (var i = 0; i < buttons.length; i++) {
-      //   // console.log(buttons[i]);
-      //   buttons[i].addEventListener('click', function () {
-      //     $.confirm({
-      //       title: 'Deactivate User?',
-      //       content: 'Are you sure you want to deactivate ' + data.Name,
-      //       buttons: {
-      //         Yes: function () {
-      //           btnClass: 'btn-green',
-      //             $.alert('Yes');
-      //         },
-      //         No: function () {
-      //           btnClass: 'btn-red',
-      //             $.alert('No');
-      //         },
-      //       }
-      //     });
-      //   });
-      // }
-
-      // $('#usertable tbody tr td:nth-child(6) center a:nth-child(3)').on('click', function (){
-      //   console.log("G");
-      //   $.confirm({
-      //     title: 'Activate User?',
-      //     content: 'Are you sure you want to activate ' + data.Name,
-      //     buttons: {
-      //       Yes: function () {
-      //         btnClass: 'btn-green',
-      //           $.alert('Yes');
-      //       },
-      //       No: function () {
-      //         btnClass: 'btn-red',
-      //           $.alert('No');
-      //       },
-      //     }
-      //   });
-      // });
-
+      to.innerHTML = data.Email;
+      //console.log(to);
 
     });
 
@@ -366,8 +335,28 @@
       // alert("T");
   </script>
   <script>
-    function setMail(){
 
-    }
+    var btnSend = document.getElementById('mailbutton');
+    btnSend.addEventListener('click',function(){
+      var tmp = new Object();
+      tmp.to = document.getElementById('emailPop').value;
+      tmp.subject = document.getElementById('subject').value;
+      tmp.body = document.getElementById('body').value;
+      tmp.name = "CQ";
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          if (xhttp.status === 200) {
+            console.log(xhttp.responseText);
+            console.log("Email Send");
+          }
+        }
+      }
+      xhttp.open("POST", "/sendmail");
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(JSON.stringify(tmp));
+
+    });
+    
   </script>
   </html>

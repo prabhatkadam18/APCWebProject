@@ -126,9 +126,6 @@ function OnlyDateEditProfile(str) {
 }
 
 $(".dobDatePop").text(OnlyDate($(".dobDatePop").text()));
-$(".profilePic").click(function () {
-  location.href = "/profile";
-});
 
 function validateImageSize(element) {
   var flag = true;
