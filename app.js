@@ -26,6 +26,7 @@ app.use(session({ secret: 'abcChitkara', resave: false, saveUninitialized: true,
 app.use(expressValidator());
 
 
+
 //Connect with db
 var mongoose = require('mongoose');
 var mongoDB = 'mongodb://localhost/web';
@@ -81,7 +82,16 @@ var authenticate = function (req, res, next) {
   }
 }
 
-var checkAdmin = function (req, res, next) {
+app.use('/admin', authenticate, function checkAdmin(req, res, next) {
+  if (user.Role == 'admin' || user.Role == 'superuser') {
+    next();
+  }
+  else {
+    res.send("NOT AUTHORIZED");
+  }
+});
+
+var switchAdmin = function (req, res, next) {
   users.find({ _id: user._id }, (err, s) => {
     if (err) {
       console.log(err);
@@ -103,7 +113,7 @@ var checkAdmin = function (req, res, next) {
 }
 
 app.get('/', (req, res) => {
-  if(req.session.isLogin){
+  if (req.session.isLogin) {
     res.redirect('/profile');
   }
   else
@@ -118,7 +128,7 @@ app.get('/', (req, res) => {
 
 
 app.post('/login', function (req, res) {
-  //console.log(req.body);
+  console.log(req.body);
   users.find({ Email: req.body.username, Password: req.body.password }, (err, data) => {
     if (data.length == 1) {
       //console.log(data);
@@ -142,16 +152,16 @@ app.post('/login', function (req, res) {
       //console.log(user);
       res.send(user);
     }
-    else{
+    else {
       user.validate = 0;
       res.send(user);
     }
-  }); 
+  });
 });
 
 
 
-app.get('/session',(req, res) => {
+app.get('/session', (req, res) => {
   if (req.session.isLogin) {
     console.log("Already Logged in");
   }
@@ -160,7 +170,7 @@ app.get('/session',(req, res) => {
     req.session.isLogin = 1;
     req.session.username = req.body.username;
   }
-  if(user.Role.toLowerCase() == 'user' || user.Role.toLowerCase()== 'community builder'){
+  if (user.Role.toLowerCase() == 'user' || user.Role.toLowerCase() == 'community builder') {
     res.redirect('/community/communitypanel');
   }
   else
@@ -177,13 +187,13 @@ app.get('/profile', authenticate, function (req, res) {
 var userExists = 0;     // 0: Does Not Exist ,   1: Exists ,   2: Created Successfully
 app.get('/adduser', authenticate, function (req, res) {
   //console.log('exists = '+ exists);
-  res.render('adduser', {exists: userExists, user: user});
+  res.render('adduser', { exists: userExists, user: user });
 });
 
 app.post('/admin/adduser', function (req, res) {
   //console.log(req.body);
   userExists = 0;
-  users.find({ Email: req.body.username}, (err, data) => {
+  users.find({ Email: req.body.username }, (err, data) => {
     if (data.length != 0) {
       console.log("User already exists");
       //console.log(data);
@@ -191,7 +201,7 @@ app.post('/admin/adduser', function (req, res) {
       res.redirect('/adduser');
       //exists = 0;
     }
-    else{
+    else {
       var obj = new Object;
       obj.Name = req.body.fullname;
       obj.Email = req.body.username.toLowerCase().trim();
@@ -202,7 +212,7 @@ app.post('/admin/adduser', function (req, res) {
       obj.Role = req.body.roleoptions.trim().toLowerCase();
       obj.DOB = "";
       obj.ProfilePic = "default.png";
-      obj.Status = "Pending";
+      obj.Status = "pending";
       //obj.CommunitiesJoined = new Array();
       // if(obj.Role == 'admin' || obj.Role == 'superadmin' || obj.Role == 'community builder')
       //   obj.CommunitiesOwned = new Array();
@@ -218,20 +228,20 @@ app.post('/admin/adduser', function (req, res) {
         delete obj;
         res.redirect('/adduser');
       });
-      
+
     }
-    
+
   });
   //alert("User Created Successfully!!");
-  
+
 });
 
-app.get('/editprofile',authenticate,(req,res)=>{
-  res.render('editprofile',{user: user});
+app.get('/editprofile', authenticate, (req, res) => {
+  res.render('editprofile', { user: user });
 });
 
-app.get('/edituserprofile',authenticate,(req,res)=>{
-  res.render('edituserprofile',{user: user});
+app.get('/edituserprofile', authenticate, (req, res) => {
+  res.render('edituserprofile', { user: user });
 })
 
 app.get('/admin/profile', authenticate, function (req, res) {
@@ -244,17 +254,17 @@ var passFlag = 0;   // 0: Dont Show any alerts ,  1: Password Changed ,  2: Inco
 app.get('/changepassword', authenticate, function (req, res) {
   //console.log(passFlag);
   passFlag = 0;
-  res.render('changepassword',{ flag: passFlag, user: user });
+  res.render('changepassword', { flag: passFlag, user: user });
 });
 
-app.post('/user/changepassword',authenticate,(req,res)=>{
+app.post('/user/changepassword', authenticate, (req, res) => {
   //console.log(req.body);
   passFlag = 0;
-  if(req.body.oldPassword == user.Password){
+  if (req.body.oldPassword == user.Password) {
     var query = { Password: user.Password, Email: user.Email };
     var newValues = { $set: { Password: req.body.newPassword } };
-    users.updateOne(query,newValues, function(err,res){
-      if(err){
+    users.updateOne(query, newValues, function (err, res) {
+      if (err) {
         console.log(err);
         throw err;
       }
@@ -263,7 +273,7 @@ app.post('/user/changepassword',authenticate,(req,res)=>{
     });
     passFlag = 1;
   }
-  else{
+  else {
     console.log("Invalid Password");
     passFlag = 2;
   }
@@ -316,44 +326,32 @@ app.post('/sendmail', (req, res) => {    // route was /admin/send
 
 //          USERLIST            //
 
-app.get('/admin/userlist', authenticate,(req, res) => {
-  res.render('userlist',{user: user});
+app.get('/admin/userlist', authenticate, (req, res) => {
+  res.render('userlist', { user: user });
   //console.log(obj);
 });
 
-app.post('/getusers',(req,res)=>{
+app.post('/getusers', (req, res) => {
   var obj = new Object;
-  var arr = new Array;
-  users.find((err,result)=>{
-    if(err){
-      console.log(err);
-      throw err;
-    }
-    obj.recordsTotal = result.length;
-    obj.recordsFiltered = result.length;
-    //console.log(res);
-    for(var i= 0;i<result.length; i++)
-    {
-      arr[i] = new Object;
-      arr[i]._id = result[i]._id;
-      arr[i].Email = (result[i].Email);
-      arr[i].Phone = (result[i].Phone);
-      arr[i].City = (result[i].City);
-      arr[i].Status = (result[i].Status);
-      arr[i].Role = (result[i].Role);
-      arr[i].Actions = null;
-    }
-    obj.data = arr;
-    //console.log(obj);
-    res.send(obj);
-    //console.log(arr);
+  var len = parseInt(req.body.length);
+  var start = parseInt(req.body.start);
+  var getCount ;
+  users.countDocuments(function(err,c){
+    getCount = c;
   });
-  //res.send(obj);
- 
+  users.aggregate([
+    { $skip: start },
+    { $limit: len }
+  ], (err, data) => {
+    obj.data = data;
+    obj.recordsTotal = getCount;
+    obj.recordsFiltered = getCount;
+    res.send(obj);
+  });
 });
 
-app.get('/admin/switchAsUser',authenticate,checkAdmin,(req,res)=>{
-  if(user.Switch == 1)
+app.get('/admin/switchAsUser', authenticate, switchAdmin, (req, res) => {
+  if (user.Switch == 1)
     res.redirect('/community/communitypanel');
   else
     res.redirect('/profile');
@@ -390,7 +388,7 @@ const multerUserConf = {
 };
 
 
-app.post('/updateUser',multer(multerUserConf).single('profileImage'),(req,res)=>{
+app.post('/updateUser', multer(multerUserConf).single('profileImage'), (req, res) => {
   if (req.file) {
     //console.log(req.file.filename);
     var obj = new Object;
@@ -402,18 +400,18 @@ app.post('/updateUser',multer(multerUserConf).single('profileImage'),(req,res)=>
     obj.AboutJourney = req.body.aboutjourney;
     obj.ComExpectations = req.body.comExpectations;
     obj.ProfilePic = req.file.filename;
-    users.updateOne({ _id: user._id },obj,(err,data)=>{
+    users.updateOne({ _id: user._id }, obj, (err, data) => {
       delete obj;
-      console.log("updated" + data.ProfilePic );
+      console.log("updated" + data.ProfilePic);
       res.redirect('/updateuser');
     });
     //users.updateOne({_id: user.id},{ $set: { ProfilePic: req.file.filename }});
-    
+
   }
 });
 
-app.get('/updateuser', authenticate,(req,res)=>{
-  users.find({_id: user._id},(err,data)=>{
+app.get('/updateuser', authenticate, (req, res) => {
+  users.find({ _id: user._id }, (err, data) => {
     user.Name = data[0].Name;
     user.Password = data[0].Password;
     user.Gender = data[0].Gender;
@@ -446,8 +444,8 @@ var communitySchema = new mongoose.Schema({
   CommunityPic: String,
   Rule: String,     //Direct or Permission
   Description: String,
-  Members: [ mongoose.Schema.Types.ObjectId ],
-  Requests: [ mongoose.Schema.Types.ObjectId ]
+  Members: [mongoose.Schema.Types.ObjectId],
+  Requests: [mongoose.Schema.Types.ObjectId]
 });
 var communities = mongoose.model('communities', communitySchema);
 
@@ -479,6 +477,11 @@ const multerCommunityConf = {
   }
 };
 
+app.get('/community/communityList',authenticate,(req,res)=>{
+  res.render('community/communitydatatable', { user: user });
+});
+
+
 app.get('/community/communitypanel', authenticate, (req, res) => {
   createCommunitySuccess = 0;
   communities.find({
@@ -488,16 +491,16 @@ app.get('/community/communitypanel', authenticate, (req, res) => {
       console.log(err);
       throw err;
     }
-    
+
     res.render('community/communitypanel', { user: user, data: comm });
   });
 });
 
-app.get('/community/addcommunity',authenticate,(req,res)=>{
-  res.render('community/addcommunity', {success: createCommunitySuccess, user: user });
+app.get('/community/addcommunity', authenticate, (req, res) => {
+  res.render('community/addcommunity', { success: createCommunitySuccess, user: user });
 });
 
-app.post('/community/addcommunity', multer(multerCommunityConf).single('communityImage'),(req,res)=>{
+app.post('/community/addcommunity', multer(multerCommunityConf).single('communityImage'), (req, res) => {
   createCommunitySuccess = 0;
   var obj = new Object;
   obj.Name = req.body.communityName;
@@ -506,7 +509,7 @@ app.post('/community/addcommunity', multer(multerCommunityConf).single('communit
   if (req.file) {
     obj.CommunityPic = req.file.filename;
   }
-  else{
+  else {
     obj.CommunityPic = 'default.jpg';
   }
   obj.Owner = user._id;
@@ -518,31 +521,31 @@ app.post('/community/addcommunity', multer(multerCommunityConf).single('communit
     }
     communities.updateOne({ _id: comm._id }, { $push: { Members: user._id } }, () => {
       createCommunitySuccess = 1;
-      users.updateOne({_id: user._id}, { $push: { CommunitiesJoined: comm._id , CommunitiesOwned: comm._id}},(err)=>{
+      users.updateOne({ _id: user._id }, { $push: { CommunitiesJoined: comm._id, CommunitiesOwned: comm._id } }, (err) => {
         delete obj;
         console.log("Community Created");
         res.redirect('/community/addcommunity');
-    
+
       });
     });
   });
 });
 
-app.get('/community/list',authenticate,(req,res)=>{
+app.get('/community/list', authenticate, (req, res) => {
   communities.find({
     $and: [{ Members: { $nin: [user._id] } }, { Requests: { $nin: [user._id] } }]
-  },(err,comm)=>{
-    if(err){
+  }, (err, comm) => {
+    if (err) {
       console.log(err);
       throw err;
     }
     res.render('community/communitylist', { user: user, data: comm });
   });
-  
+
 });
 
-app.post('/join',authenticate, (req,res)=>{
-  if(req.body.commType == 'join'){
+app.post('/join', authenticate, (req, res) => {
+  if (req.body.commType == 'join') {
     communities.findOneAndUpdate({ _id: req.body.id }, { $push: { Members: user._id } }, (err, comm) => {
       if (err) {
         console.log(err);
@@ -551,9 +554,9 @@ app.post('/join',authenticate, (req,res)=>{
       users.findOneAndUpdate({ _id: user._id }, { $push: { CommunitiesJoined: comm._id } }, (err, d) => {
         res.send("OK");
       });
-    }); 
+    });
   }
-  else{
+  else {
     communities.findOneAndUpdate({ _id: req.body.id }, { $push: { Requests: user._id } }, (err, comm) => {
       if (err) {
         console.log(err);
@@ -570,17 +573,17 @@ app.post('/join',authenticate, (req,res)=>{
   }
 });
 
-app.post('/cancelrequest', authenticate, (req,res)=>{
+app.post('/cancelrequest', authenticate, (req, res) => {
   //console.log(req.body);
-  communities.findOneAndUpdate({ _id: req.body.id}, { $pull: { Requests: user._id}}, (err,comm)=>{
-    if(err){
+  communities.findOneAndUpdate({ _id: req.body.id }, { $pull: { Requests: user._id } }, (err, comm) => {
+    if (err) {
       console.log(err);
       throw err;
     }
-    users.findOneAndUpdate({ _id: user.id}, { $pull: { CommunitiesRequested: comm._id}}, (err,d)=>{
+    users.findOneAndUpdate({ _id: user.id }, { $pull: { CommunitiesRequested: comm._id } }, (err, d) => {
       if (err) {
         console.log(err);
-        communities.findOneAndUpdate({ _id: req.body.id}, {$push: { Requests: user._id}});
+        communities.findOneAndUpdate({ _id: req.body.id }, { $push: { Requests: user._id } });
         throw err;
       }
       res.send("OK");
@@ -588,35 +591,35 @@ app.post('/cancelrequest', authenticate, (req,res)=>{
   });
 });
 
-app.get('/community/communityprofile/:id', authenticate, (req, res)=>{
+app.get('/community/communityprofile/:id', authenticate, (req, res) => {
   //console.log(req.param.id);
   var request = 0, currUserOwner = 0;
-  communities.findOne({_id: req.params.id}, (err, comm)=>{
-    if(err){
+  communities.findOne({ _id: req.params.id }, (err, comm) => {
+    if (err) {
       console.log(err);
       throw err;
     }
-    users.find({CommunitiesRequested: {$in: [comm._id]}}, (err, d)=>{
-      if(err){
+    users.find({ CommunitiesRequested: { $in: [comm._id] } }, (err, d) => {
+      if (err) {
         console.log(err);
         throw err;
       }
-      if(d.length != 0){
+      if (d.length != 0) {
         request = 1;
       }
-      users.findOne({_id : comm.Owner }, (err, owner) => {
+      users.findOne({ _id: comm.Owner }, (err, owner) => {
         if (err) {
           console.log(err);
           throw err;
         }
-        if(owner._id.equals( user._id ))
+        if (owner._id.equals(user._id))
           currUserOwner = 1;
-        users.find({CommunitiesJoined: {$in: [comm._id]}},(err,joined)=>{
+        users.find({ CommunitiesJoined: { $in: [comm._id] } }, (err, joined) => {
           if (err) {
             console.log(err);
             throw err;
           }
-          res.render('community/communityprofile', { user: user, data: comm, req: request, Owner: owner, currUserOwner: currUserOwner, joined: joined});
+          res.render('community/communityprofile', { user: user, data: comm, req: request, Owner: owner, currUserOwner: currUserOwner, joined: joined });
           request = 0;
           currUserOwner = 0;
 

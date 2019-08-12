@@ -1,8 +1,8 @@
-<%- include("partials/header",{user: user}) %>
+<%- include("../partials/header",{user: user}) %>
 
 <div id="wrapper">
 
-  <% include partials/admin/adminMenu %>
+  <% include ../partials/admin/adminMenu %>
 
   <style>
     table.dataTable tbody td {
@@ -18,7 +18,7 @@
 
 
 
-          <div class="form-control allSides" id="roleFilterTitle" style="float: left;width:90px;font-weight:bold;">
+          <div class="form-control allSides" id="roleFilterTitle" style="float: left;width:135px;font-weight:bold;">
             Community List
           </div>
           <select onchange="filterRole()" class="form-control filter-button" id="roleFilter" name="filter"
