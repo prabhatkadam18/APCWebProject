@@ -14,45 +14,22 @@
       <div class="row">
         <div class="col-lg-12 scoll-possible" style="padding:0">
           <div style="margin-left:20px;margin-right:20px;margin-top:20px">
-
-
-
-
-          <div class="form-control allSides" id="roleFilterTitle" style="float: left;width:135px;font-weight:bold;">
-            Community List
+            <table id="commtable">
+              <thead>
+                <tr>
+                  <th class="CommTableId"></th>
+                  <th class="CommTableName"></th>
+                  <th class="CommTableRule"></th>
+                  <th class="CommTableLocation"></th>
+                  <th class="CommTableAdmin"></th>
+                  <th class="CommTableDate"></th>
+                  <th class="CommTableActions"></th>
+                  <th class="CommTableImage"></th>
+                  <th class="CommTableActive"></th>
+                </tr>
+              </thead>
+            </table>
           </div>
-          <select onchange="filterRole()" class="form-control filter-button" id="roleFilter" name="filter"
-            style="float: right;margin-left: 10px;">
-            <option name="user" value="">All</option>
-            <option name="user" value="admin">Admins</option>
-            <option name="admin" value="user">Users</option>
-            <option name="commuity manager" value="commuity manager">Community Builder</option>
-          </select>
-          <select onchange="filterStatus()" class="form-control filter-button" id="statusFilter" name="statusFilter"
-            style="float: right;margin-left: 10px;">
-            <option name="user" value="">All</option>
-            <option name="pending" value="pending">Pending</option>
-            <option name="confirmed" value="confirmed">Confirmed</option>
-          </select>
-          <button onclick="refresh()" class="btn btn-default"
-            style="float: right;background-color: #2D312C;color: #fff">
-            <span class="glyphicon glyphicon-refresh"></span> Refresh
-          </button>
-          <br><br><br>
-          <table class="table table-striped table-bordered nowrap dataTable no-footer" id="usertable"
-            style="width: 100%; display: table;">
-            <thead>
-              <tr role="row">
-                <th class="tableId">User Id</th>
-                <th class="ComTableName">Community Name</th>
-                <th class="CommTableRule">Membership Rule</th>
-                <th class="ComTableLocation">Community Location</th>
-                <th class="ComTableAdmin">CommunityOwner</th>
-                <th class="tableRole sorting">Role</th>
-                <th class="tableAction">Actions</th>
-              </tr>
-            </thead>
-          </table>
         </div>
       </div>
     </div>

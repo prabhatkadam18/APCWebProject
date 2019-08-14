@@ -151,6 +151,30 @@ pcNone, .mobile {
   user-select: none;
 }
 
+#usertable_paginate a {
+  position: relative;
+  /* float: left; */
+  padding: 9px 12px;
+  margin-left: -1px;
+  /* line-height: 1.42857143; */
+  color: #337ab7;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+#usertable_paginate #usertable_previous {
+  /* width: px; */
+  padding: 9px 20px;
+  padding-right: 10px;
+}
+
+#usertable_paginate #usertable_next {
+  text-align: left;
+  padding: 9px 20px;
+  padding-left: 10px;
+}
+
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;

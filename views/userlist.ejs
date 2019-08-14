@@ -2,8 +2,11 @@
 
 <div id="wrapper">
 
-  <% include partials/admin/adminMenu %>
-
+  <% if(user.Role.toLowerCase() == 'user' || user.Switch == 1){ %>
+  <%- include("partials/community/communityMenu",{user: user}) %>
+  <% } else { %>
+  <%- include partials/admin/adminMenu %>
+  <% } %>
   <style>
     table.dataTable tbody td {
       padding: 4px 10px;
@@ -79,7 +82,8 @@
                       <div class="form-group">
                         <label class="control-label col-sm-2">Username:</label>
                         <div class="col-sm-10">
-                          <input type="text" name="username" class="form-control" id="username" placeholder="Username">
+                          <input type="text" disabled name="username" class="form-control" id="username"
+                            placeholder="Username">
                         </div>
                       </div>
                       <div class="form-group">
@@ -109,7 +113,7 @@
                         <div class="col-sm-10">
                           <select class="form-control" id="role" name="role">
                             <option name="user" value="user">User</option>
-                            <option name="community builder" value="commuity builder">Community Builder</option>
+                            <option name="community builder" value="community builder">Community Builder</option>
                             <option name="admin" value="admin">Admin</option>
                           </select>
                         </div>
@@ -123,6 +127,10 @@
                     <!---------------------------------------------------------------------------------->
                   </div>
                   <div class="modal-footer">
+                    <div style="display: none;text-align: center;margin: 1% 20%" id="invalid"
+                      class="alert alert-danger">Failed To Update</div>
+                    <div style="display: none;text-align: center;margin: 1% 20%" id="done" class="alert alert-success">
+                      Updated</div>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
                 </div>
@@ -138,7 +146,7 @@
             <option name="user" value="">All</option>
             <option name="user" value="admin">Admins</option>
             <option name="admin" value="user">Users</option>
-            <option name="commuity builder" value="commuity builder">Community Builder</option>
+            <option name="community builder" value="community builder">Community Builder</option>
           </select>
           <select onchange="filterStatus()" class="form-control filter-button" id="statusFilter" name="statusFilter"
             style="float: right;margin-left: 10px;">
@@ -152,9 +160,9 @@
           </button>
           <br><br><br>
           <table class="table table-striped table-bordered nowrap dataTable no-footer" id="usertable"
-            style="width: 100%; display: table;">
+            style="width: 100%; display: table">
             <thead>
-              <tr role="row">
+              <tr>
                 <th class="tableId">User Id</th>
                 <th class="tableUname">Usename/Email</th>
                 <th class="tablePhone">Phone</th>
@@ -170,28 +178,24 @@
     </div>
   </div>
 </div>
-</div>
-
-
-
 
 </body>
 
 
 <script>
   var usertable = document.getElementById('usertable');
-   
-  function getData(setstatus,setrole){
+
+  function getData(setstatus, setrole) {
 
     $(document).ready(function () {
-      $('#usertable').DataTable({
+    table = $('#usertable').DataTable({
         "processing": true,
         "serverSide": true,
 
         "ajax": {
           "url": "/getusers",
           "type": "POST",
-          "data": function(d){
+          "data": function (d) {
             d.status = setstatus;
             d.role = setrole;
           }
@@ -214,7 +218,7 @@
           {
             "targets": [-1],
             "render": function (data, type, row, meta) {
-              if (row.Role == 'superuser')
+              if (row.Super == true)
                 return '<center><a class="btn btn-primary btn-sm emailbtn actionbtns" data-toggle="modal" data-target="#popUp" id="emailbtn" style="background:#000"><span class="fa fa-envelope" style="color:#fff"></span></a></center>';
               else if ((row.Status) == 'confirmed') {
                 return '<center><a class="btn btn-primary btn-sm emailbtn actionbtns" data-toggle="modal" data-target="#popUp" id="emailbtn" style="background:#000"><span class="fa fa-envelope" style="color:#fff"></span></a><a class="btn btn-primary btn-sm editbtn actionbtns" data-toggle="modal" data-target="#updateUser" id="editbtn"><span class="fa fa-edit"></span></a><a class="btn btn-warning btn-sm deactivebtn actionbtns" onclick="listenerOnDeactivate()"><span class="fa fa-times-circle"></span></a></center>';
@@ -227,10 +231,17 @@
       });
     });
   }
+  var roleFilter = document.getElementById('roleFilter').value;
+  getData("All", 'All');
 
-  getData("All","All");
-  
-  function listenerOnDeactivate(){
+  function filterRole(){
+    var roleFilter = document.getElementById('roleFilter');
+    console.log(roleFilter.value);
+    table.destroy();
+    getData('All', roleFilter.value);
+  }
+
+  function listenerOnDeactivate() {
     var row = $(event.target).closest('tr')[0];
     $.confirm({
       title: 'Deactivate User?',
@@ -256,7 +267,7 @@
     });
   }
 
-  function listenerOnActivate () {
+  function listenerOnActivate() {
     var row = $(event.target).closest('tr')[0];
     // console.log(el.childNodes[0]);
     $.confirm({
@@ -282,21 +293,69 @@
   // }
 
   $('#usertable').on('click', 'tr', function () {
-    //console.log($('#usertable').DataTable().row(this).data());
+
+    //MAIL
     var toMail = document.getElementById('emailPop');
     var data = $('#usertable').DataTable().row(this).data();
-    toMail.value = data.Email;
+    if(data != undefined){
+      console.log(data);
+      toMail.value = data.Email;
+      document.getElementById('userNameInUpdate').innerHTML = data.Email;
+      var uname = document.getElementById('username');
+      uname.value = data.Email;
+      var phone = document.getElementById('phone');
+      phone.value = data.Phone;
+      var city = document.getElementById('city');
+      city.value = data.City;
+      var status = $('#status');
+      status.value = data.Status;
+      var role = document.getElementById('role');
+      role.value = data.Role;
+    }
+      
     // console.log(data);
 
-    document.getElementById('userNameInUpdate').innerHTML = data.Email;
-    document.getElementById('username').value = data.Email;
-    document.getElementById('phone').value = data.Phone;
-    document.getElementById('city').value = data.City;
-    $('#status').val(data.Status);
-    console.log(document.getElementById('role').value);
+    // EDIT
+    
+    // console.log($('#usertable').DataTable().row(this).data());
+    document.getElementById('editsubmit').addEventListener('click', update);
+
+    function update() {
+      var tmp = new Object;
+      tmp.uname = data.Email;
+      tmp.phone = phone.value;
+      tmp.city = city.value;
+      tmp.status = status.value;
+      tmp.role = role.value;
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          if (xhttp.status === 200) {
+            // console.log(this.responseText);
+            data = JSON.parse(this.responseText);
+            if (data.done == 1) {
+              document.getElementById('done').setAttribute('style', 'display: block;text-align: center;margin: 1% 20%');
+
+            }
+            else {
+              divInvalid.setAttribute('style', 'display: block;text-align: center;margin: 1% 20%');
+            }
+          }
+        }
+      }
+      xhttp.open("POST", "/admin/updateuser");
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(JSON.stringify(tmp));
+
+    }
     //console.log(data.Role);
 
+    //
+
   });
+
+
 
 </script>
 

@@ -41,6 +41,7 @@ mongoose.connection.on('connected', (err) => {
   console.log('DB connected');
 });
 
+mongoose.set('useFindAndModify', false);
 
 var userSchema = new mongoose.Schema({
   Name: String,
@@ -53,6 +54,8 @@ var userSchema = new mongoose.Schema({
   DOB: String,
   ProfilePic: String,
   Status: String,
+  // Super: Boolean,
+  // Active: Boolean,      // Implement in Userlist
   CommunitiesJoined: mongoose.Schema.Types.ObjectId,        // Array of ->   "ObjectId("...")"
   CommunitiesOwned: mongoose.Schema.Types.ObjectId,
   CommunitiesRequested: mongoose.Schema.Types.ObjectId
@@ -332,22 +335,105 @@ app.get('/admin/userlist', authenticate, (req, res) => {
 });
 
 app.post('/getusers', (req, res) => {
-  var obj = new Object;
-  var len = parseInt(req.body.length);
-  var start = parseInt(req.body.start);
-  var getCount ;
-  users.countDocuments(function(err,c){
-    getCount = c;
-  });
-  users.aggregate([
-    { $skip: start },
-    { $limit: len }
-  ], (err, data) => {
-    obj.data = data;
-    obj.recordsTotal = getCount;
-    obj.recordsFiltered = getCount;
-    res.send(obj);
-  });
+
+
+  var count;
+
+  if (req.body.order[0].column == 0) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Email", 1);
+    else{
+      req.body.order[0].dir = 'desc';
+      getdata("Email", -1);
+    }
+      
+  }
+  else if (req.body.order[0].column == 1) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Phone", 1);
+    else
+      getdata("Phone", -1);
+  }
+  else if (req.body.order[0].column == 2) {
+    if (req.body.order[0].dir == "asc")
+      getdata("City", 1);
+    else
+      getdata("City", -1);
+  }
+  else if (req.body.order[0].column == 3) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Status", 1);
+    else
+      getdata("Status", -1);
+  }
+  else if (req.body.order[0].column == 4) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Role", 1);
+    else
+      getdata("Role", -1);
+  }
+
+  else {
+    getdata("Email", 1);
+  }
+
+  function getdata(colname, sortorder) {
+    users.countDocuments(function (e, count) {
+      var start = parseInt(req.body.start);
+      var len = parseInt(req.body.length);
+      var role = req.body.role;
+      var status = req.body.status;
+      var search = req.body.search.value;
+      console.log(req.body);
+      var getcount = 10;
+
+
+      findobj = {};
+      if (role != "All") {
+        findobj.Role = role;
+      }
+      else {
+        delete findobj["Role"];
+      }
+      
+      if (status != "All") { 
+        findobj.Status = status; 
+      }
+      else {
+        delete findobj["Status"];
+      }
+      if (search != '')
+        findobj["$or"] = [{
+          "Email": { '$regex': search, '$options': 'i' }
+        },{
+          "City": { '$regex': search, '$options': 'i' }
+        }];
+      else {
+        delete findobj["$or"];
+      }
+      console.log(findobj);
+
+      users.find(findobj).countDocuments(function (e, coun) {
+        getcount = coun;
+      }).catch(err => {
+        console.error(err)
+        res.send(err)
+      });
+
+      users.find(findobj).skip(start).limit(len).sort({ [colname]: sortorder })
+        .then(data => {
+          res.send({ "recordsTotal": count, "recordsFiltered": getcount, "data": data })
+        })
+        .catch(err => {
+          console.error(err)
+          //  res.send(error)
+        })
+    });
+  }
+
+
+
+
 });
 
 app.get('/admin/switchAsUser', authenticate, switchAdmin, (req, res) => {
@@ -405,7 +491,6 @@ app.post('/updateUser', multer(multerUserConf).single('profileImage'), (req, res
       console.log("updated" + data.ProfilePic);
       res.redirect('/updateuser');
     });
-    //users.updateOne({_id: user.id},{ $set: { ProfilePic: req.file.filename }});
 
   }
 });
@@ -425,6 +510,18 @@ app.get('/updateuser', authenticate, (req, res) => {
     user.CommunitiesRequested = data[0].CommunitiesRequested;
     res.redirect('/profile');
   });
+});
+
+app.post('/admin/updateuser', (req, res) => {
+  console.log(req.body);
+  users.findOneAndUpdate({ Email: req.body.uname }, { $set: { Phone: req.body.phone, City: req.body.city.toLowerCase(), Status: req.body.status.toLowerCase(), Role: req.body.role.toLowerCase() } }, (err, data) => {
+    if (err) {
+      console.log(err);
+      throw err;
+    }
+    res.send({ done: 1 });
+  });
+
 });
 
 
@@ -477,7 +574,7 @@ const multerCommunityConf = {
   }
 };
 
-app.get('/community/communityList',authenticate,(req,res)=>{
+app.get('/community/communityList', authenticate, (req, res) => {
   res.render('community/communitydatatable', { user: user });
 });
 
@@ -619,7 +716,7 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
             console.log(err);
             throw err;
           }
-          res.render('community/communityprofile', { user: user, data: comm, req: request, Owner: owner, currUserOwner: currUserOwner, joined: joined });
+          res.render('community/communityprofile', { user: user, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined });
           request = 0;
           currUserOwner = 0;
 
@@ -633,6 +730,7 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
 
 app.get('/logout', authenticate, (req, res) => {
   req.session.destroy();
+  user.Switch = 0;
   delete user;
   console.log('Logged Out');
   res.redirect('/');
