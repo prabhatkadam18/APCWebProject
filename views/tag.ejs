@@ -1,0 +1,58 @@
+<%- include("partials/header",{user: user}) %>
+
+<div id="wrapper">
+  <!-- Sidebar -->
+  <% if(user.Role.toLowerCase() != 'admin' || user.Switch == 1){ %>
+  <%- include("partials/community/communityMenu",{user: user}) %>
+  <% } else { %>
+  <%- include partials/admin/adminMenu %>
+  <% } %>
+
+
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <!--Margin Top is new-->
+    <div class="container-fluid page-content-div" style="padding:0">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+
+
+          <div class="container" style="padding-top:100px">
+            <div
+              class="col-sm-6 col-md-6 col-lg-6 col-xs-10 col-xs-push-1 col-lg-push-3 col-sm-push-3 col-md-push-3  allSides tagDivMain">
+              <h3 class="page-header" style="color:#707070">Create Tag</h3>
+              <form form action="/createTag" method="post" id="createTagForm">
+                <div class="form-group">
+                  <input class="form-control" type="text" name="tagName" placeholder="Tag Name" id="tagInputField"
+                    autocomplete="off" required="">
+                </div>
+                <div class="form-group">
+                  <input class="form-control btn btn-primary" type="submit" value="Submit" id="tagSubmitBtn">
+                </div>
+              </form>
+            </div>
+          </div>
+          <center>
+            <a href="/tag/tagslist" class="btn btn-warning btn-sm" style="margin-top:10px">Tag Lists</a>
+          </center>
+
+          </div>
+          </div>
+          </div>
+          </div>
+</div>
+
+
+<script>
+  var selector = '.active';
+  $(selector).removeClass('active');
+  $('#admin-tag-panel').addClass('active');
+</script>
+<script>
+  // $(document).ready(()=>{
+  //   document.getElementById('tagSubmitBtn').addEventListener('click', function () {
+  //     var a = document.getElementById('tagInputField');
+  //   })
+  // })
+  
+
+</script>

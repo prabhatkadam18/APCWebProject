@@ -53,9 +53,10 @@ var userSchema = new mongoose.Schema({
   Role: String,
   DOB: String,
   ProfilePic: String,
+  DateCreated: Date,
   Status: String,
-  // Super: Boolean,
-  // Active: Boolean,      // Implement in Userlist
+  Super: Boolean,
+  Active: Boolean,      // Implement in Userlist
   CommunitiesJoined: mongoose.Schema.Types.ObjectId,        // Array of ->   "ObjectId("...")"
   CommunitiesOwned: mongoose.Schema.Types.ObjectId,
   CommunitiesRequested: mongoose.Schema.Types.ObjectId
@@ -85,8 +86,35 @@ var authenticate = function (req, res, next) {
   }
 }
 
+function reloadUser(){
+  users.find({_id: user._id},(err,data)=>{
+    if (data.length == 1) {
+      //console.log(data);
+      user._id = data[0]._id;
+      user.Name = data[0].Name;
+      user.Email = data[0].Email;
+      user.Password = data[0].Password;
+      user.Gender = data[0].Gender;
+      user.Phone = data[0].Phone;
+      user.City = data[0].City;
+      user.Role = data[0].Role;
+      user.DOB = data[0].DOB;
+      user.DateCreated = data[0].DateCreated;
+      user.Super = data[0].Super;
+      user.Active = data[0].Active;
+      user.Switch = 0;
+      user.ProfilePic = data[0].ProfilePic;
+      user.Status = data[0].Status;
+      user.CommunitiesJoined = data[0].CommunitiesJoined;
+      if (user.Role == 'admin' || user.Role == 'community builder')
+        user.CommunitiesOwned = data[0].CommunitiesOwned;
+      user.CommunitiesRequested = data[0].CommunitiesRequested;
+    }
+  });
+}
+
 app.use('/admin', authenticate, function checkAdmin(req, res, next) {
-  if (user.Role == 'admin' || user.Role == 'superuser') {
+  if (user.Role == 'admin') {
     next();
   }
   else {
@@ -144,11 +172,14 @@ app.post('/login', function (req, res) {
       user.City = data[0].City;
       user.Role = data[0].Role;
       user.DOB = data[0].DOB;
+      user.DateCreated = data[0].DateCreated;
+      user.Super = data[0].Super;
+      user.Active = data[0].Active;
       user.Switch = 0;
       user.ProfilePic = data[0].ProfilePic;
       user.Status = data[0].Status;
       user.CommunitiesJoined = data[0].CommunitiesJoined;
-      if (user.Role == 'admin' || user.Role == 'superadmin' || user.Role == 'community builder')
+      if (user.Role == 'admin' || user.Role == 'community builder')
         user.CommunitiesOwned = data[0].CommunitiesOwned;
       user.CommunitiesRequested = data[0].CommunitiesRequested;
       user.validate = 1;
@@ -209,6 +240,9 @@ app.post('/admin/adduser', function (req, res) {
       obj.Name = req.body.fullname;
       obj.Email = req.body.username.toLowerCase().trim();
       obj.Password = req.body.password;
+      obj.DateCreated = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+      obj.Super = false;
+      obj.Active = true;
       obj.Phone = req.body.phone;
       obj.Gender = "Male";
       obj.City = req.body.city.trim().toLowerCase();
@@ -231,9 +265,7 @@ app.post('/admin/adduser', function (req, res) {
         delete obj;
         res.redirect('/adduser');
       });
-
     }
-
   });
   //alert("User Created Successfully!!");
 
@@ -325,6 +357,102 @@ app.post('/sendmail', (req, res) => {    // route was /admin/send
   res.send("OK");
 });
 
+
+//////////////////  TAG   ///////////////
+
+var tagSchema = new mongoose.Schema({
+  Name: String,
+  DateCreated: String,
+  Owner: mongoose.Schema.Types.ObjectId
+});
+
+
+
+var tags = mongoose.model('tags', tagSchema);
+
+app.get('/tag',authenticate,(req,res)=>{
+  res.render('tag', { user: user });
+});
+
+app.post('/createTag',(req,res)=>{
+  console.log(req.body);
+  var obj = new Object();
+  obj.Name = req.body.tagName;
+  obj.Owner = user._id;
+
+  var y = new Date().getFullYear();
+  var m = new Date().getMonth();
+  var d = new Date().getDate();
+  var j = y + '-' + m + '-' + d;
+  obj.DateCreated = j;
+
+// console.log(obj);
+  var tmpobj = new tags(obj);
+  tmpobj.save(function (err, d) {
+    if (err) {
+      console.log(err);
+      res.send(err);
+      throw err;
+    }
+    delete tmpobj;
+    delete obj;
+    console.log('tag Inserted');
+    res.redirect('back');
+  });
+});
+
+app.get('/tag/tagslist', authenticate , (req,res)=>{
+  res.render('tagdatatable', {user: user});
+});
+
+app.post('/gettag',(req,res)=>{
+  
+  getdata();
+
+  function getdata(){
+    tags.countDocuments((err, count) => {
+      var getcount = 10;
+      var start = parseInt(req.body.start);
+      var len = parseInt(req.body.length);
+      var search = req.body.search.value;
+
+      var findObj = {};
+      if (search != '')
+        findObj["$or"] = [{
+          "Name": { '$regex': search, '$options': 'i' }
+        }];
+      else {
+        delete findObj["$or"];
+      }
+
+
+      tags.find(findObj).countDocuments((err,coun)=>{
+        getcount = coun;
+      }).catch(err =>{
+        console.error(err);
+        res.send(err);
+      });
+
+      tags.find(findObj).skip(start).limit(len).sort({ ['Name']: 1 })
+        .then(data=>{
+          //console.log(data);
+          res.send({ "recordsTotal": count, "recordsFiltered": getcount, "data": data })
+        })
+        .catch(err => {
+          throw err;
+        });
+
+    });
+  }
+  
+  
+});
+
+app.post('/tag/deletetag',(req,res)=>{
+  console.log(req.body);
+  res.send("OK");
+});
+
 /////////////////////////////////////////
 
 //          USERLIST            //
@@ -337,40 +465,25 @@ app.get('/admin/userlist', authenticate, (req, res) => {
 app.post('/getusers', (req, res) => {
 
 
-  var count;
-
-  if (req.body.order[0].column == 0) {
+  if (req.body.order[0].column == 1) {
     if (req.body.order[0].dir == "asc")
       getdata("Email", 1);
-    else{
-      req.body.order[0].dir = 'desc';
+    else {
       getdata("Email", -1);
     }
-      
+
   }
-  else if (req.body.order[0].column == 1) {
+  else if (req.body.order[0].column == 2) {
     if (req.body.order[0].dir == "asc")
       getdata("Phone", 1);
     else
       getdata("Phone", -1);
   }
-  else if (req.body.order[0].column == 2) {
+  else if (req.body.order[0].column == 3) {
     if (req.body.order[0].dir == "asc")
       getdata("City", 1);
     else
       getdata("City", -1);
-  }
-  else if (req.body.order[0].column == 3) {
-    if (req.body.order[0].dir == "asc")
-      getdata("Status", 1);
-    else
-      getdata("Status", -1);
-  }
-  else if (req.body.order[0].column == 4) {
-    if (req.body.order[0].dir == "asc")
-      getdata("Role", 1);
-    else
-      getdata("Role", -1);
   }
 
   else {
@@ -384,9 +497,8 @@ app.post('/getusers', (req, res) => {
       var role = req.body.role;
       var status = req.body.status;
       var search = req.body.search.value;
-      console.log(req.body);
+      //console.log(req.body);
       var getcount = 10;
-
 
       findobj = {};
       if (role != "All") {
@@ -395,9 +507,9 @@ app.post('/getusers', (req, res) => {
       else {
         delete findobj["Role"];
       }
-      
-      if (status != "All") { 
-        findobj.Status = status; 
+
+      if (status != "All") {
+        findobj.Status = status;
       }
       else {
         delete findobj["Status"];
@@ -405,13 +517,13 @@ app.post('/getusers', (req, res) => {
       if (search != '')
         findobj["$or"] = [{
           "Email": { '$regex': search, '$options': 'i' }
-        },{
+        }, {
           "City": { '$regex': search, '$options': 'i' }
         }];
       else {
         delete findobj["$or"];
       }
-      console.log(findobj);
+      //console.log(findobj);
 
       users.find(findobj).countDocuments(function (e, coun) {
         getcount = coun;
@@ -425,8 +537,7 @@ app.post('/getusers', (req, res) => {
           res.send({ "recordsTotal": count, "recordsFiltered": getcount, "data": data })
         })
         .catch(err => {
-          console.error(err)
-          //  res.send(error)
+          throw err;
         })
     });
   }
@@ -513,7 +624,7 @@ app.get('/updateuser', authenticate, (req, res) => {
 });
 
 app.post('/admin/updateuser', (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   users.findOneAndUpdate({ Email: req.body.uname }, { $set: { Phone: req.body.phone, City: req.body.city.toLowerCase(), Status: req.body.status.toLowerCase(), Role: req.body.role.toLowerCase() } }, (err, data) => {
     if (err) {
       console.log(err);
@@ -523,6 +634,91 @@ app.post('/admin/updateuser', (req, res) => {
   });
 
 });
+
+app.get('/admin/getcommunities', authenticate, (req, res) => {
+  res.render('communitydatatable', { user: user });
+  //console.log(obj);
+});
+
+app.post('/getcommunities', (req, res) => {
+
+  // console.log("k");
+  if (req.body.order[0].column == 1) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Name", 1);
+    else {
+      getdata("Name", -1);
+    }
+
+  }
+  else if (req.body.order[0].column == 2) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Owner", 1);
+    else
+      getdata("Owner", -1);
+  }
+  else if (req.body.order[0].column == 2) {
+    if (req.body.order[0].dir == "asc")
+      getdata("Location", 1);
+    else
+      getdata("Location", -1);
+  }
+
+  else {
+    getdata("Name", 1);
+  }
+
+  getdata("Name", 1);
+
+  function getdata(colname, sortorder) {
+    communities.countDocuments(function (e, count) {
+      var start = parseInt(req.body.start);
+      var len = parseInt(req.body.length);
+      var rule = req.body.rule;
+      var search = req.body.search.value;
+      //console.log(req.body);
+      var getcount = 10;
+
+      findobj = {};
+      if (rule != "All") {
+        findobj.Rule = rule;
+      }
+      else {
+        delete findobj["Rule"];
+      }
+      if (search != '')
+        findobj["$or"] = [{
+          "Name": { '$regex': search, '$options': 'i' }
+        }, {
+          "Location": { '$regex': search, '$options': 'i' }
+        }, {
+          "Owner": { '$regex': search, '$options': 'i' }
+        }];
+      else {
+        delete findobj["$or"];
+      }
+      //console.log(findobj);
+
+      communities.find(findobj).countDocuments(function (e, coun) {
+        getcount = coun;
+      }).catch(err => {
+        console.error(err)
+        res.send(err)
+      });
+
+      communities.find(findobj).skip(start).limit(len).sort({ [colname]: sortorder })
+        .then(data => {
+          res.send({ "recordsTotal": count, "recordsFiltered": getcount, data })
+        })
+        .catch(err => {
+          console.error(err)
+          //  res.send(error)
+        })
+    })
+  }
+
+});
+
 
 
 
@@ -541,6 +737,9 @@ var communitySchema = new mongoose.Schema({
   CommunityPic: String,
   Rule: String,     //Direct or Permission
   Description: String,
+  Location: String,
+  DateCreated: String,
+  Active: Boolean,
   Members: [mongoose.Schema.Types.ObjectId],
   Requests: [mongoose.Schema.Types.ObjectId]
 });
@@ -575,7 +774,7 @@ const multerCommunityConf = {
 };
 
 app.get('/community/communityList', authenticate, (req, res) => {
-  res.render('community/communitydatatable', { user: user });
+  res.render('communitydatatable', { user: user });
 });
 
 
@@ -603,6 +802,13 @@ app.post('/community/addcommunity', multer(multerCommunityConf).single('communit
   obj.Name = req.body.communityName;
   obj.Description = req.body.communityDescription;
   obj.Rule = req.body.communityMembershipRule;
+  var y = new Date().getFullYear();
+  var m = new Date().getMonth();
+  var d = new Date().getDate();
+  var j = y+'-'+m+'-'+d;
+  obj.DateCreated = j;
+  obj.Location = "";
+  obj.Active = true;
   if (req.file) {
     obj.CommunityPic = req.file.filename;
   }
@@ -690,7 +896,7 @@ app.post('/cancelrequest', authenticate, (req, res) => {
 
 app.get('/community/communityprofile/:id', authenticate, (req, res) => {
   //console.log(req.param.id);
-  var request = 0, currUserOwner = 0;
+  var request = 0, currUserOwner = 0, isMember = 0;
   communities.findOne({ _id: req.params.id }, (err, comm) => {
     if (err) {
       console.log(err);
@@ -716,15 +922,51 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
             console.log(err);
             throw err;
           }
-          res.render('community/communityprofile', { user: user, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined });
-          request = 0;
-          currUserOwner = 0;
-
+          communities.find({ Members: { $in: [user._id] } }, (err, data)=>{
+            if(err){
+              console.log(err);
+              throw err;
+            }
+            if(data.length != 0){
+              isMember = 1;
+            }
+            res.render('community/communityprofile', { user: user, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined, isMember: isMember });
+            request = 0;
+            isMember = 0;
+            currUserOwner = 0;
+          });
         });
       });
     });
   });
 });
+
+
+app.get('/viewprofile/:id',(req,res)=>{
+  res.render('')
+});
+
+
+app.post('/leavecommunity', (req, res)=>{
+  communities.findOneAndUpdate({_id: req.body.id},{ $pull: { Members: user._id }} ,(err,d)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    users.findOneAndUpdate({_id: user._id}, { $pull: {CommunitiesJoined: d._id } }, (err,c)=>{
+      if(err){
+        console.log(err);
+        throw err;
+      }
+      else{
+        reloadUser();
+        console.log("Left");
+        res.redirect(req.get('referer'));
+      }
+    })
+  });
+});
+
 
 /////////////////////////////////////////
 

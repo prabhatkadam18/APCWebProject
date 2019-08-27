@@ -41,11 +41,11 @@
                     <div class="col-sm-12 col-xs-12 myCommunity community-div"
                        id="can<%= data[i]._id %>">
                       <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1">
-                        <a href="/community/discussion/<%= data[i]._id %>"><img
+                        <a href="/community/communityprofile/<%= data[i]._id %>"><img
                             src="/upload/Community/<%= data[i].CommunityPic %>" class="cpic"></a>
                       </div>
                       <div class="col-sm-10 col-xs-7" style="padding-top:25px;padding-bottom:5px;overflow:scroll">
-                        <p style="margin:0"><a class="comnametxt" href="/community/discussion/<%= data[i]._id %>">
+                        <p style="margin:0"><a class="comnametxt" href="/community/communityprofile/<%= data[i]._id %>">
                             <%= data[i].Name %> </a> &nbsp;&nbsp;&nbsp;
 
                           <a class="comnametxt-user"
@@ -62,17 +62,17 @@
                 <% } %>
                 <% } %>
                 <% for(var i=0; i < data.length ;i++){ %>
-                <% for(var j =0;j< data[i].Members.length-1; j++){ %>
-                <% if(data[i].Members[j].equals(user._id)){ %>
+                <% for(var j =0;j< data[i].Members.length; j++){ %>
+                <% if(data[i].Members[j].equals(user._id) && data[i].Owner.equals(user._id)==0){ %>
                 <div class="panel-body" style="padding-top:0;padding-bottom:0">
                   <div id="community-that-am-in">
                     <div class="col-sm-12 col-xs-12 joinedCommunity community-div" style="margin-top:5px;" id="can<%= data[i]._id %>">
                       <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1"><a
-                          href="/community/discussion/<%= data[i]._id %>"><img src="/upload/Community/<%= data[i].CommunityPic %>"
+                          href="/community/communityprofile/<%= data[i]._id %>"><img src="/upload/Community/<%= data[i].CommunityPic %>"
                             class="cpic"></a></div>
                       <div class="col-sm-10 col-xs-7" style="padding-top:25px;padding-bottom:5px;overflow:scroll">
                         <p style="margin:0"><a class="comnametxt"
-                            href="/community/discussion/<%= data[i]._id %>"><%= data[i].Name %></a>&nbsp;&nbsp;&nbsp;<a
+                            href="/community/communityprofile/<%= data[i]._id %>"><%= data[i].Name %></a>&nbsp;&nbsp;&nbsp;<a
                             class="comnametxt-user"
                             href="/community/communitymembers/<%= data[i]._id %>">Members(<%= data[i].Members.length %>)</a>
                         </p>
@@ -88,7 +88,7 @@
                 <% for(var j = 0; j< data[i].Requests.length; j++){ %>
                 <% if(data[i].Requests[j].equals(user._id)){ %>
                 <div class="panel-body" style="padding-top:0">
-                  <div id="my-pending-commuity">
+                  <div id="my-pending-community">
                     <div class="col-sm-12 col-xs-12 pendingCommunity community-div" style="margin-top:5px;" id="can<%= data[i]._id %>">
                       <div class="col-sm-1 col-xs-3" style="padding:10px;z-index:1"><a
                           href="/community/communityprofile/<%= data[i]._id %>"><img src="/upload/Community/<%= data[i].CommunityPic %>"

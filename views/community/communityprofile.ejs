@@ -10,7 +10,7 @@
       <div class="row">
         <div class="col-lg-12 scoll-possible" style="padding:0">
           <div class="community-header-top communityheader-profile-mobile" style="padding-top:6px;position:relative;">
-            <% if(reqs == 1 && currUserOwner== 0){ %>
+            <% if(reqd == 1 && currUserOwner== 0){ %>
             <div class="container pc">
               <button class="btn btn-danger community-panel-btn requestBtn disabled" style="float:right">Requested<i
                   class="fa fa-ask"></i></button>
@@ -54,7 +54,7 @@
 
             <div class="col-sm-3 col-xs-12">
               <div class="panel panel-default allSidesSoft" style="border-radius:0">
-              <% if(reqs == 1 && currUserOwner == 0 ){ %>
+              <% if(reqd == 1 && currUserOwner == 0 ){ %>
               <div class="panel-body" style="border:0;border-radius:0">
                 <div class="col-sm-12 col-xs-12 center-all">
                   <button class="btn btn-primary requestBtn disabled">Requested<i class="fa fa-ask"></i></button>
@@ -87,11 +87,12 @@
                 <a href="/community/communitymembers/<%= data._id %>" style="">
                   <%= data.Members.length %> Members
                 </a>
-                <% if(Owner._id.equals(user._id) == 0) { %> 
-                <a onclick=leaveCommunity(`<%= data._id %>`) style="float:right;cursor:pointer">
+                <% if(Owner._id.equals(user._id) == 0 && isMember == 1) { %> 
+                <a onclick=leaveCommunity('<%= data._id %>') style="float:right;cursor:pointer">
                   Leave Community
                 </a>
                 <% } %>
+                
 
               </div>
 
@@ -103,7 +104,7 @@
                 Community Managers
               </div>
               <div class="panel-body" style="border:0;border-radius:0">
-                <div id="commuity-owner-detail">
+                <div id="community-owner-detail">
                   <!--Owner Info-->
                   <div class="col-sm-12 col-md-12 col-lg-12 adminInfo">
                     <div class="col-sm-6 col-md-6 col-lg-4 col-xs-4 center-all"> <a
@@ -117,7 +118,7 @@
                     </div>
                   </div>
                 </div>
-                <div id="commuity-admins-detail">
+                <div id="community-admins-detail">
                   <!--Admin Info-->
                 </div>
               </div>
@@ -159,3 +160,42 @@
   </div>
 </div>
 </div>
+
+<script>
+  var xhttp = new XMLHttpRequest();
+  function leaveCommunity(id){
+    $.confirm({
+      title: 'Leave Communtiy?',
+      content: 'Are you sure you want to leave this community',
+      buttons: {
+        Yes: {
+          btnClass: 'btn-green',
+          action: Leave(id)
+        },
+        No: {
+          btnClass: 'btn-red',
+          action: function () { }
+        },
+      }
+    });
+  }
+  function Leave(id) {
+    var tmp = {};
+    tmp.id = id;
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        if (xhttp.status === 200) {
+          // console.log("BACK");
+        }
+      }
+    }
+    xhttp.open("POST", "/leavecommunity");
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.send(JSON.stringify(tmp));
+  }
+</script>
+<script>
+
+  
+
+</script>

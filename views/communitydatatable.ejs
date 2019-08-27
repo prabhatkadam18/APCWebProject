@@ -1,0 +1,119 @@
+<%- include("partials/header",{user: user}) %>
+
+<div id="wrapper">
+
+  <% if(user.Role.toLowerCase() == 'user' || user.Switch == 1){ %>
+  <%- include("partials/community/communityMenu",{user: user}) %>
+  <% } else { %>
+  <%- include partials/admin/adminMenu %>
+  <% } %>
+
+  <style>
+    table.dataTable tbody td {
+      padding: 4px 10px;
+    } 
+  </style>
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0; margin-left: 20px; margin-right: 20px ">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+          <div style="margin-left:20px;margin-right:20px;margin-top:20px">
+            <table class = 'table table-striped table-bordered nowrap' id="commtable" style="width: 100%; display: table">
+              <thead>
+                <tr>
+                  <th class="CommTableId"></th>
+                  <th class="CommTableName">Community Name</th>
+                  <th class="CommTableRule">Membership Rule</th>
+                  <th class="CommTableLocation">Community Location</th>
+                  <th class="CommTableAdmin">Community Owner</th>
+                  <th class="CommTableDate">Create Date</th>
+                  <th class="CommTableActions">Actions</th>
+                  <th class="CommTableImage">Community Pic</th>
+                  <th class="CommTableActive"></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+</body>
+<script>
+  var communitytable = document.getElementById('commtable');
+
+  function getdata(setrule) {
+      $(document).ready(function () {
+    
+      var table = $('#commtable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+          "url": '/getcommunities',
+          "type": "POST",
+          "data": function (d) {
+            d.rule = setrule;
+          }
+        },
+        "columns": [
+          { "data": "_id" },
+          { "data": "Name" },
+          { "data": "Rule" },
+          { "data": "Location" },
+          { "data": "Owner" },
+          { "data": "DateCreated" },
+          { "data": "Actions", "orderable": false, "searchable": false },
+          { "data": "CommunityPic", "orderable": false, "searchable": false }
+        ],
+        "order": [[1, "asc"]],
+        "columnDefs": [
+          {
+            "targets": [0],
+            "orderable": false, "visible": false
+          },
+          {
+            "targets": [-2],
+            "render": function (data, type, row, meta) {
+              return '<center><a style="color:#000" class="btn btn-primary btn-sm"><span class="fa fa-edit" style="color:#fff"></span></a></center>';
+            }
+
+          },
+          {
+            "targets": [3],
+            "data": null,
+            "defaultContent": 'Not Added'
+          }
+        ],
+        "contentType": "application/json"
+
+      });
+
+  });
+}
+
+  getdata('All');
+
+</script>
+<script>
+  var selector = '.nav li';
+  $(selector).removeClass('active');
+  $('#community-list-nav').addClass('active');
+</script>
+<script src="/javascripts/Common.js"></script>
+<script src="../Plugins/js/trumbowyg.min.js"></script>
+<script>
+  $.trumbowyg.svgPath = '../images/icons/icons.svg';
+  $('#body').trumbowyg();
+
+</script>
+<script>
+  function setMail() {
+
+  }
+</script>
+
+</html>

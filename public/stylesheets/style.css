@@ -156,7 +156,7 @@ pcNone, .mobile {
   /* float: left; */
   padding: 9px 12px;
   margin-left: -1px;
-  /* line-height: 1.42857143; */
+  margin-right: 2px;
   color: #337ab7;
   text-decoration: none;
   background-color: #fff;
