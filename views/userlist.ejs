@@ -185,7 +185,7 @@
 <script>
   var usertable = document.getElementById('usertable');
 
-  function getData(setstatus, setrole) {
+  function getData() {
 
     $(document).ready(function () {
     table = $('#usertable').DataTable({
@@ -196,8 +196,8 @@
           "url": "/getusers",
           "type": "POST",
           "data": function (d) {
-            d.status = setstatus;
-            d.role = setrole;
+            d.status = document.getElementById('statusFilter').value;
+            d.role = document.getElementById('roleFilter').value;
           }
         },
         "columns": [
@@ -233,20 +233,18 @@
   }
   var roleFilter = document.getElementById('roleFilter').value;
   var statusFilter = document.getElementById('statusFilter').value;
-  getData(roleFilter, statusFilter);
+  getData();
 
   function filterStatus(){
     var roleFilter = document.getElementById('roleFilter').value;
     var statusFilter = document.getElementById('statusFilter').value;
-    table.destroy();
-    getData(statusFilter, roleFilter);
+    table.ajax.reload(null,false);
   }
 
   function filterRole(){
-    // var roleFilter = document.getElementById('roleFilter').value;
-    // var statusFilter = document.getElementById('statusFilter').value;
-    table.destroy();
-    getData(statusFilter, roleFilter);
+    var roleFilter = document.getElementById('roleFilter').value;
+    var statusFilter = document.getElementById('statusFilter').value;
+    table.ajax.reload(null, false);
   }
 
   function listenerOnDeactivate() {
@@ -297,10 +295,7 @@
   }
 
   function refresh(){
-    var roleFilter = document.getElementById('roleFilter').value;
-    var statusFilter = document.getElementById('statusFilter').value;
-    table.destroy();
-    getData(statusFilter,roleFilter);
+    table.ajax.reload(null, false);
   }
 
   $('#usertable').on('click', 'tr', function () {

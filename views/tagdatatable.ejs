@@ -18,19 +18,20 @@
       <div class="row">
         <div class="col-lg-12 scoll-possible" style="padding:0">
           <div style="margin-left:20px;margin-right:20px;margin-top:20px">
-            
+
 
             <div class="form-control allSides" id="roleFilter" style="float: left;width:90px;font-weight:bold;">
               Tags List
             </div>
-            <button onclick="refresh()" class="btn btn-default" style="float: right;background-color: #2D312C;color: #fff">
+            <button onclick="refresh()" class="btn btn-default"
+              style="float: right;background-color: #2D312C;color: #fff">
               <span class="glyphicon glyphicon-refresh"></span> Refresh
             </button>
             <br>
             <br>
             <br>
-            
-            <table class='table table-striped table-bordered nowrap' id="tagtable" style="width: 100%; display: table">
+
+            <table class='table table-striped table-bordered nowrap' id="usertable" style="width: 100%; display: table">
               <thead>
                 <tr>
                   <th class='tagsTableId'>Tag ID</th>
@@ -50,66 +51,79 @@
 
 <script>
 
-  var tagTable = document.getElementById('tagtable');
-
+  var table;
   getdata();
 
-    function getdata() {
-        $(document).ready(function () {
 
-          var table = $('#tagtable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-              "url": '/gettag',
-              "type": "POST"
-            },
-            "columns": [
-              { "data": "_id" },
-              { "data": "Name" },
-              { "data": "Owner" },
-              { "data": "DateCreated" },
-              { "data": "Actions", "orderable": false, "searchable": false }
-            ],
-            "order": [[1, "asc"]],
-            "columnDefs": [
-              {
-                "targets": [-1],
-                "render": function (data, type, meta, row) {
-                  return '<center><a class="btn btn-sm deleteTagbtn" onclick="deleteTag()" ><span class="fa fa-trash"></span></a></center>'
-                }
-              },
-              {
-                "targets": [0],
-                "visible": false
-              },
-            ],
-            "contentType": "application/json"
 
-          });
-          $('#tagtable').on('click', 'tr', function () {
-            var id = (table.row(this).data()._id);
-            deleteTag(id);
-          });
+  function getdata() {
+    $(document).ready(function () {
 
-        });
+      table = $('#usertable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+          "url": '/gettag',
+          "type": "POST"
+        },
+        "columns": [
+          { "data": "_id" },
+          { "data": "Name" },
+          { "data": "Owner" },
+          { "data": "DateCreated" },
+          { "data": "Actions", "orderable": false, "searchable": false }
+        ],
+        "order": [[1, "asc"]],
+        "columnDefs": [
+          {
+            "targets": [-1],
+            "render": function (data, type, meta, row) {
+              return '<center><a class="btn btn-sm deleteTagbtn" ><span class="fa fa-trash"></span></a></center>'
+            }
+          },
+          {
+            "targets": [2],
+            "render": function (data, type, meta, row) {
+              //console.log(data);
+              return data.Name;
+            }
+          },
+          {
+            "targets": [0],
+            "visible": false
+          },
+        ],
+        "contentType": "application/json"
 
-        
-      }
-  function deleteTag(id){
-    
-
-    //console.log($(event.target).closest('tr')[0]);
-    var tmp = {};
-    tmp['id'] = id;
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
+      });
+      $('#usertable').on('click', 'tr', function () {
+        var id = (table.row(this).data()._id);
+        deleteTag(id);
+      });
 
       
+    });
 
+
+  }
+  function refresh() {
+      table.ajax.reload(null,false);
+  }
+
+  function deleteTag(id) {
+
+
+    // console.log($(event.target).closest('tr')[0]);
+    // var r = ($(event.target).closest('tr')[0]);
+    var tmp = {};
+    tmp['id'] = id;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         if (xhttp.status === 200) {
-          
+          // r.parentNode.removeChild(r);
+          refresh();
         }
       }
     }
@@ -118,13 +132,17 @@
     xhttp.send(JSON.stringify(tmp));
 
   }
-  
+
 
 
 
 </script>
 
 <script>
+$(document).ready(function(){
+$('#usertable_filter > label > input').addClass('input-sm form-control');
+$('#usertable_length > label > select').addClass('input-sm form-control');
 
-  
+});
+
 </script>

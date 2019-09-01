@@ -18,7 +18,78 @@
       <div class="row">
         <div class="col-lg-12 scoll-possible" style="padding:0">
           <div style="margin-left:20px;margin-right:20px;margin-top:20px">
-            <table class = 'table table-striped table-bordered nowrap' id="commtable" style="width: 100%; display: table">
+
+
+            <div class="modal fade in" id="popUp" role="dialog"
+              style="z-index: 9999; display: none; padding-left: 0px;">
+              <div class="modal-dialog">
+
+                <div class="modal-content">
+                  <div class="modal-header" style="word-wrap:break-word;">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" id="CommunityNamePop" style="font-weight:bold">Update ***</h4>
+                    <p id="CommunityAdminPop" style="font-size:10px;">Created by </p>
+                  </div>
+                  <div class="modal-body">
+                    <!------------------------------------------------------------------------------------>
+                    <div class="form-horizontal">
+                      <div class="form-group">
+                        <div class="col-lg-5 col-lg-offset-3" style="width:50%">
+                          <input style="display:none" type="text" name="_id" class="form-control" id="_id" readonly="">
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="control-label col-sm-2">Commuity Name:</label>
+                        <div class="col-sm-10">
+                          <input type="text" name="communityName" class="form-control" id="CommuityName"
+                            placeholder="Community Name">
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="control-label col-sm-2">Community Status:</label>
+                        <div class="col-sm-10">
+                          <select class="form-control" id="communityStatus" name="communityActive">
+                            <option name="true" value="true">Active</option>
+                            <option name="false" value="false">Deactive</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                          <button class="btn btn-default" id="editsubmit">Update</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!---------------------------------------------------------------------------------->
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+            <div class="form-control allSides" id="roleFilter" style="float: left;width:135px;font-weight:bold;">
+              Community List
+            </div>
+            <select class="form-control filter-button" id="statusFilter" name="CommunityRule"
+              style="float: right;margin-left: 10px" onchange="filterRule()">
+              <option name="all" value="All">All</option>
+              <option name="D" value="Direct">Direct</option>
+              <option name="P" value="Permission">Permission</option>
+            </select>
+            <button onclick="refresh()" class="btn btn-default" style="float: right;background-color: #2D312C;color: #fff">
+              <span class="glyphicon glyphicon-refresh"></span> Refresh
+            </button>
+            <br><br><br>
+
+            <table class = 'table table-striped table-bordered nowrap' id="usertable" style="width: 100%; display: table">
               <thead>
                 <tr>
                   <th class="CommTableId"></th>
@@ -29,7 +100,7 @@
                   <th class="CommTableDate">Create Date</th>
                   <th class="CommTableActions">Actions</th>
                   <th class="CommTableImage">Community Pic</th>
-                  <th class="CommTableActive"></th>
+                  <th class="CommTableActive">Status</th>
                 </tr>
               </thead>
             </table>
@@ -44,30 +115,31 @@
 
 </body>
 <script>
-  var communitytable = document.getElementById('commtable');
 
-  function getdata(setrule) {
+var table;
+  function getdata() {
       $(document).ready(function () {
     
-      var table = $('#commtable').DataTable({
+      table = $('#usertable').DataTable({
         "processing": true,
         "serverSide": true,
         "ajax": {
           "url": '/getcommunities',
           "type": "POST",
           "data": function (d) {
-            d.rule = setrule;
+            d.rule = document.getElementById('statusFilter').value;
           }
         },
         "columns": [
           { "data": "_id" },
           { "data": "Name" },
-          { "data": "Rule" },
+          { "data": "Rule", "orderable": false },
           { "data": "Location" },
-          { "data": "Owner" },
+          { "data": "Owner", "orderable": false },
           { "data": "DateCreated" },
           { "data": "Actions", "orderable": false, "searchable": false },
-          { "data": "CommunityPic", "orderable": false, "searchable": false }
+          { "data": "CommunityPic", "orderable": false, "searchable": false },
+          { "data": "Active"}
         ],
         "order": [[1, "asc"]],
         "columnDefs": [
@@ -76,16 +148,30 @@
             "orderable": false, "visible": false
           },
           {
-            "targets": [-2],
-            "render": function (data, type, row, meta) {
-              return '<center><a style="color:#000" class="btn btn-primary btn-sm"><span class="fa fa-edit" style="color:#fff"></span></a></center>';
+            "targets": [4],
+            "render": function(data,type,row,meta){
+              return row.Name;
             }
-
+          },
+          {
+            "targets": [-3],
+            "render": function (data, type, row, meta) {
+              return '<center><a data-toggle="modal" data-target="#popUp" style="color:#000" class="btn btn-primary btn-sm"><span class="fa fa-edit" style="color:#fff"></span></a></center>';
+            }
           },
           {
             "targets": [3],
-            "data": null,
-            "defaultContent": 'Not Added'
+            "render": function (data, type, row, meta) {
+              if(row.Location == ''){
+                return "Not Added";
+              }
+            }
+          },
+          {
+            "targets": [-2],
+            "render": function (data, type, row, meta) {
+              return "<img src=/upload/Community/" +row.CommunityPic+ " width=70 height=70 >";
+            }
           }
         ],
         "contentType": "application/json"
@@ -94,8 +180,17 @@
 
   });
 }
-
   getdata('All');
+
+  function refresh() {
+    table.ajax.reload(null,false);
+    }
+
+  function filterRule() {
+      var ruleFilter = document.getElementById('statusFilter').value;
+      refresh();
+    }
+
 
 </script>
 <script>
@@ -110,10 +205,15 @@
   $('#body').trumbowyg();
 
 </script>
-<script>
-  function setMail() {
 
-  }
+<script>
+
+  $(document).ready(function(){
+  $('#usertable_filter > label > input').addClass('input-sm form-control');
+  $('#usertable_length > label > select').addClass('input-sm form-control');
+
+  });
+
 </script>
 
 </html>
