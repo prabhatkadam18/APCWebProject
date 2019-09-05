@@ -65,7 +65,17 @@
                   <%= data.Members.length %> Members
                 </p>
               </div>
-            
+              <%}else if(isMember==0){ %>
+                <div class="panel-body" style="border:0;border-radius:0">
+                  <div class="col-sm-12 col-xs-12 center-all">
+                    <button class="btn btn-primary joinBtn" id="<%=data._id%>" onclick=btnJoin(this.id) data-id="1"> Join <i class="fa fa-plus"></i></button>
+                  </div>
+                </div>
+                <div class="panel-footer community-panel-sideBtn-link">
+                  <p class="center-all" style="margin:0">
+                    <%= data.Members.length %> Members
+                  </p>
+                </div>
               <%} else{ %>
               <div class="panel-heading" style="border:0;border-radius:0">
                 Members
@@ -84,11 +94,11 @@
               </div>
               <div class="panel-footer community-panel-sideBtn-link">
 
-                <a href="/community/communitymembers/<%= data._id %>" style="">
+                <a href="/community/communitymembers/<%= data._id %>" >
                   <%= data.Members.length %> Members
                 </a>
                 <% if(Owner._id.equals(user._id) == 0 && isMember == 1) { %> 
-                <a onclick=leaveCommunity('<%= data._id %>') style="float:right;cursor:pointer">
+                <a id ='aleavecomm' onclick="leaveCommunity('<%= data._id %>')" style="float:right;cursor:pointer">
                   Leave Community
                 </a>
                 <% } %>
@@ -170,11 +180,15 @@
       buttons: {
         Yes: {
           btnClass: 'btn-green',
-          action: Leave(id)
+          action: function(){
+            Leave(id);
+          }
         },
         No: {
           btnClass: 'btn-red',
-          action: function () { }
+          action: function () {
+            console.log("Pressed No");
+           }
         },
       }
     });
@@ -185,7 +199,7 @@
     xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         if (xhttp.status === 200) {
-          // console.log("BACK");
+          document.getElementById('aleavecomm').setAttribute("style", "display:none");
         }
       }
     }
@@ -196,6 +210,39 @@
 </script>
 <script>
 
-  
+  function btnJoin(id) {
+    console.log(id);
+      var obj = new Object;
+      obj.id = id;
+      var text = document.getElementById(id).textContent.trim().toLowerCase();
+      obj.commType = text;
+      var el = document.getElementById(id).parentNode.parentNode.parentNode.parentNode.parentNode;
+      var elParent = el.parentNode;
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          if (xhttp.status === 200) {
+            if (this.responseText == 'OK') {
+              elParent.removeChild(el);
+              if (elParent.childElementCount == 0) {
+                var elParentChild = document.createElement("div");
+                elParentChild.setAttribute("class", "well");
+                // elParentChild.setAttribute("class","well");
+                var h4 = document.createElement("h4");
+                h4.innerHTML = "OOPS.....!!!!!";
+                var p = document.createElement("p");
+                p.innerHTML = "Sorry for inconvienence. We didn't find any data.";
+                elParentChild.appendChild(h4);
+                elParentChild.appendChild(p);
+                elParent.appendChild(elParentChild);
+              }
+            }
+          }
+        }
+      }
+      xhttp.open("POST", "/join");
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(JSON.stringify(obj));
+    }
 
 </script>
