@@ -57,9 +57,9 @@ var userSchema = new mongoose.Schema({
   Status: String,
   Super: Boolean,
   Active: Boolean,      // Implement in Userlist
-  CommunitiesJoined: mongoose.Schema.Types.ObjectId,        // Array of ->   "ObjectId("...")"
-  CommunitiesOwned: mongoose.Schema.Types.ObjectId,
-  CommunitiesRequested: mongoose.Schema.Types.ObjectId
+  CommunitiesJoined: [{ type: mongoose.Schema.Types.ObjectId, ref: 'communities' }],     // Array of ->   "ObjectId("...")"
+  CommunitiesOwned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'communities' }],
+  CommunitiesRequested: [{ type: mongoose.Schema.Types.ObjectId, ref: 'communities' }]
 });
 
 
@@ -87,6 +87,7 @@ var authenticate = function (req, res, next) {
 }
 
 function reloadUser(){
+  console.log('Reload User');
   users.find({_id: user._id},(err,data)=>{
     if (data.length == 1) {
       //console.log(data);
@@ -151,7 +152,13 @@ app.get('/', (req, res) => {
     res.render('loginform');
 });
 
-
+function returnDate(){
+  var y = new Date().getFullYear();
+  var m = new Date().getMonth();
+  var d = new Date().getDate();
+  var j = y + '-' + m + '-' + d;
+  return j;
+}
 
 //////////////////////////////////////////
 //                ***                   //
@@ -240,20 +247,16 @@ app.post('/admin/adduser', function (req, res) {
       obj.Name = req.body.fullname;
       obj.Email = req.body.username.toLowerCase().trim();
       obj.Password = req.body.password;
-      obj.DateCreated = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+      obj.DateCreated = returnDate();
       obj.Super = false;
       obj.Active = true;
       obj.Phone = req.body.phone;
       obj.Gender = "Male";
       obj.City = req.body.city.trim().toLowerCase();
       obj.Role = req.body.roleoptions.trim().toLowerCase();
-      obj.DOB = "";
+      obj.DOB = returnDate();
       obj.ProfilePic = "default.png";
       obj.Status = "pending";
-      //obj.CommunitiesJoined = new Array();
-      // if(obj.Role == 'admin' || obj.Role == 'superadmin' || obj.Role == 'community builder')
-      //   obj.CommunitiesOwned = new Array();
-      // obj.CommunitiesRequested = new Array();
       var tmpuser = new users(obj);
       tmpuser.save(function (err, d) {
         if (err) {
@@ -363,7 +366,7 @@ app.post('/sendmail', (req, res) => {    // route was /admin/send
 var tagSchema = new mongoose.Schema({
   Name: String,
   DateCreated: String,
-  Owner: mongoose.Schema.Types.ObjectId
+  Owner: { type: mongoose.Schema.Types.ObjectId, ref: 'users' }
 });
 
 
@@ -380,10 +383,7 @@ app.post('/createTag',(req,res)=>{
   obj.Name = req.body.tagName;
   obj.Owner = user._id;
 
-  var y = new Date().getFullYear();
-  var m = new Date().getMonth();
-  var d = new Date().getDate();
-  var j = y + '-' + m + '-' + d;
+  var j = returnDate();
   obj.DateCreated = j;
 
 // console.log(obj);
@@ -433,15 +433,14 @@ app.post('/gettag',(req,res)=>{
         res.send(err);
       });
 
-      tags.find(findObj).skip(start).limit(len).sort({ ['Name']: 1 })
-        .then(data=>{
+      tags.find(findObj).skip(start).limit(len).sort({ ['Name']: 1 }).populate('Owner').
+        exec(function(err,data){
           //console.log(data);
+          if(err){
+            console.log(err);
+          }
           res.send({ "recordsTotal": count, "recordsFiltered": getcount, "data": data })
         })
-        .catch(err => {
-          throw err;
-        });
-
     });
   }
   
@@ -449,8 +448,14 @@ app.post('/gettag',(req,res)=>{
 });
 
 app.post('/tag/deletetag',(req,res)=>{
-  console.log(req.body);
-  res.send("OK");
+  tags.remove({"_id": req.body.id}, (err,d)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    console.log("Tag Removed");
+    res.send('OK');
+  });
 });
 
 /////////////////////////////////////////
@@ -642,7 +647,7 @@ app.get('/admin/getcommunities', authenticate, (req, res) => {
 
 app.post('/getcommunities', (req, res) => {
 
-  // console.log("k");
+  //console.log(req.body);
   if (req.body.order[0].column == 1) {
     if (req.body.order[0].dir == "asc")
       getdata("Name", 1);
@@ -651,13 +656,13 @@ app.post('/getcommunities', (req, res) => {
     }
 
   }
-  else if (req.body.order[0].column == 2) {
+  else if (req.body.order[0].column == 4) {
     if (req.body.order[0].dir == "asc")
       getdata("Owner", 1);
     else
       getdata("Owner", -1);
   }
-  else if (req.body.order[0].column == 2) {
+  else if (req.body.order[0].column == 3) {
     if (req.body.order[0].dir == "asc")
       getdata("Location", 1);
     else
@@ -668,8 +673,6 @@ app.post('/getcommunities', (req, res) => {
     getdata("Name", 1);
   }
 
-  getdata("Name", 1);
-
   function getdata(colname, sortorder) {
     communities.countDocuments(function (e, count) {
       var start = parseInt(req.body.start);
@@ -679,7 +682,7 @@ app.post('/getcommunities', (req, res) => {
       //console.log(req.body);
       var getcount = 10;
 
-      findobj = {};
+      var findobj = {};
       if (rule != "All") {
         findobj.Rule = rule;
       }
@@ -688,11 +691,9 @@ app.post('/getcommunities', (req, res) => {
       }
       if (search != '')
         findobj["$or"] = [{
-          "Name": { '$regex': search, '$options': 'i' }
+          "Name": { '$regex': search, '$options': 'i'}
         }, {
           "Location": { '$regex': search, '$options': 'i' }
-        }, {
-          "Owner": { '$regex': search, '$options': 'i' }
         }];
       else {
         delete findobj["$or"];
@@ -703,20 +704,19 @@ app.post('/getcommunities', (req, res) => {
         getcount = coun;
       }).catch(err => {
         console.error(err)
-        res.send(err)
+        throw err;
       });
 
-      communities.find(findobj).skip(start).limit(len).sort({ [colname]: sortorder })
-        .then(data => {
-          res.send({ "recordsTotal": count, "recordsFiltered": getcount, data })
-        })
-        .catch(err => {
-          console.error(err)
-          //  res.send(error)
-        })
-    })
+      communities.find(findobj).skip(start).limit(len).sort({ [colname]: sortorder }).populate('Owner')
+      .exec(function(err,data){
+        if(err){
+          console.log(err);
+        }
+        //console.log(data);
+        res.send({ "recordsTotal": count, "recordsFiltered": getcount, data });
+      })
+    });
   }
-
 });
 
 
@@ -725,7 +725,7 @@ app.post('/getcommunities', (req, res) => {
 // //////////////////////////////////////////
 
 // █▀▀ █▀▀█ █▀▄▀█ █▀▄▀█ █░░█ █▀▀▄ ░▀░ ▀▀█▀▀ █░░█
-// █░░ █░░█ █░▀░█ █░▀░█ █░░█ █░░█ ▀█▀ ░░█░░ █▄▄█
+// █░░ █░░█ █░▀░█ █░▀░█ █░░█ █░░█ ▀█▀ ░░█░░ █▄▄█\\
 // ▀▀▀ ▀▀▀▀ ▀░░░▀ ▀░░░▀ ░▀▀▀ ▀░░▀ ▀▀▀ ░░▀░░ ▄▄▄█
 
 // //////////////////////////////////////////
@@ -733,17 +733,32 @@ app.post('/getcommunities', (req, res) => {
 
 var communitySchema = new mongoose.Schema({
   Name: String,
-  Owner: mongoose.Schema.Types.ObjectId,      //  ObjectId of OWNER
+  Owner: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },      //  ObjectId of OWNER
   CommunityPic: String,
   Rule: String,     //Direct or Permission
   Description: String,
   Location: String,
   DateCreated: String,
   Active: Boolean,
-  Members: [mongoose.Schema.Types.ObjectId],
-  Requests: [mongoose.Schema.Types.ObjectId]
+  Members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+  Requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]
 });
 var communities = mongoose.model('communities', communitySchema);
+
+
+app.get('/comm',(req,res)=>{
+  var len = 3;
+  var start = 0;
+  communities.find().limit(len).skip(start).populate('Owner').
+  exec(function(err,d){
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    console.log(d);
+  });
+});
+
 
 
 var createCommunitySuccess = 0;
@@ -802,10 +817,7 @@ app.post('/community/addcommunity', multer(multerCommunityConf).single('communit
   obj.Name = req.body.communityName;
   obj.Description = req.body.communityDescription;
   obj.Rule = req.body.communityMembershipRule;
-  var y = new Date().getFullYear();
-  var m = new Date().getMonth();
-  var d = new Date().getDate();
-  var j = y+'-'+m+'-'+d;
+  var j = returnDate();
   obj.DateCreated = j;
   obj.Location = "";
   obj.Active = true;
@@ -883,7 +895,7 @@ app.post('/cancelrequest', authenticate, (req, res) => {
       console.log(err);
       throw err;
     }
-    users.findOneAndUpdate({ _id: user.id }, { $pull: { CommunitiesRequested: comm._id } }, (err, d) => {
+    users.findOneAndUpdate({ _id: user._id }, { $pull: { CommunitiesRequested: comm._id } }, (err, d) => {
       if (err) {
         console.log(err);
         communities.findOneAndUpdate({ _id: req.body.id }, { $push: { Requests: user._id } });
@@ -930,6 +942,7 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
             if(data.length != 0){
               isMember = 1;
             }
+            //console.log("isMember: "+isMember+", reqd: "+ request+ ", currUserOwner: "+ currUserOwner);
             res.render('community/communityprofile', { user: user, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined, isMember: isMember });
             request = 0;
             isMember = 0;
@@ -942,8 +955,14 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
 });
 
 
-app.get('/viewprofile/:id',(req,res)=>{
-  res.render('')
+app.get('/viewprofile/:id',authenticate,(req,res)=>{
+  users.findOne({_id: req.params.id},(err,user)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    res.render('commuserprofile', { user: user });
+  });
 });
 
 
@@ -958,14 +977,13 @@ app.post('/leavecommunity', (req, res)=>{
         console.log(err);
         throw err;
       }
-      else{
-        reloadUser();
-        console.log("Left");
-        res.redirect(req.get('referer'));
-      }
+      reloadUser();
+      console.log(req.get('referer'));
+      res.redirect(req.get('referer'));
     })
   });
 });
+
 
 
 /////////////////////////////////////////
