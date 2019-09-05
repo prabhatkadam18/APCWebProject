@@ -1,0 +1,151 @@
+<%- include("partials/header",{user: user}) %>
+
+<div id="wrapper">
+
+  <% if(user.Role.toLowerCase() == 'user' || user.Switch == 1){ %>
+  <%- include("partials/community/communityMenu",{user: user}) %>
+  <% } else { %>
+  <%- include partials/admin/adminMenu %>
+  <% } %>
+
+  <style>
+    table.dataTable tbody td {
+      padding: 4px 10px;
+    }
+  </style>
+  <div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0; margin-left: 20px; margin-right: 20px ">
+      <div class="row">
+        <div class="col-lg-12 scoll-possible" style="padding:0">
+          <div style="margin-left:20px;margin-right:20px;margin-top:20px">
+
+
+            <style>
+              body {
+                color: #575757 !important;
+              }
+
+              .content-div {
+                margin-top: 2%;
+                width: 100%;
+              }
+
+              .null-link {
+                color: black
+              }
+
+              .null-link:hover {
+                color: black;
+                text-decoration: none;
+              }
+
+              .panel-main-div:hover {
+                box-shadow: 0 3px 10px 0 rgba(115, 143, 147, .2);
+              }
+
+              @media(max-width: 768px) {
+                .content-div {
+                  margin-top: 5%;
+                  width: 100% !important;
+                }
+              }
+            </style>
+
+            <div class="modal fade" id="popUp" role="dialog" style="z-index:9999">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Send Message</h4>
+                  </div>
+                  <div class="modal-body">
+                    <!------------------------------------------------------------------------------------>
+                    <div class="form-horizontal">
+                      <!-- form -->
+                      <div class="form-group">
+                        <div class="col-sm-10">
+                          <h3 id="send-to"></h3>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-12">
+                          <!--Body-->
+                          <textarea type="text" class="form-control" name="message" id="message" required=""></textarea>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                          <button class="btn btn-default" type="submit" id="MessageSendButton"
+                            style="float:right">Send</button>
+                        </div>
+                      </div>
+                    </div> <!-- form -->
+                    <!---------------------------------------------------------------------------------->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-pic-center-main-div mobile" style="margin-bottom:80px">
+              <img src="/" class="profile-pic-center allSides">
+            </div>
+
+            <div class="content-div">
+              <div class="container">
+                <div class="card allSidesSoft" style="background:rgb(249, 249, 249)">
+                  <div class="card-body">
+
+
+                    <div class="d-flex pc">
+                      <div class="image-container">
+                        <img src="/upload/Profile/<%=user.ProfilePic%>" id="user-profile-image"
+                          style="width: 150px; height: 150px" class="img-thumbnail allSidesSoft">
+                      </div>
+                    </div>
+
+                    <!-- <div class="form-group">
+                      <a href="/edituserProfile" class="btn btn-primary pull-right" style="margin-right:15px">Edit</a>
+                    </div> -->
+
+                    <br>
+                    <br>
+
+
+                    <div class="col-sm-6">
+                      <div class="panel panel-default allSidesSoft panel-main-div">
+                        <div class="panel-heading">Name</div>
+                        <div class="panel-body"><%=user.Name%></div>
+                      </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                      <div class="panel panel-default allSidesSoft panel-main-div">
+                        <div class="panel-heading">Gender</div>
+                        <div class="panel-body" style="text-transform: capitalize;"><%=user.Gender%></div>
+                      </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                      <div class="panel panel-default allSidesSoft panel-main-div">
+                        <div class="panel-heading">D.O.B</div>
+                        <div class="panel-body null-link" id="dobtext"><%=user.DOB%></div>
+                      </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                      <div class="panel panel-default allSidesSoft panel-main-div">
+                        <div class="panel-heading">City</div>
+                        <div class="panel-body null-link" id="dobtext"><%=user.City%></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
