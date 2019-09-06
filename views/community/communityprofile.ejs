@@ -68,7 +68,12 @@
               <%}else if(isMember==0){ %>
                 <div class="panel-body" style="border:0;border-radius:0">
                   <div class="col-sm-12 col-xs-12 center-all">
-                    <button class="btn btn-primary joinBtn" id="<%=data._id%>" onclick=btnJoin(this.id) data-id="1"> Join <i class="fa fa-plus"></i></button>
+                    <% if(data.Rule=='Direct'){ %>
+                      <button class="btn btn-primary joinBtn" id="<%=data._id%>" onclick=btnJoin(this.id) data-id="1"> Join <i class="fa fa-plus"></i></button>
+                    <%} else{ %>
+                      <button class="btn btn-primary joinBtn" id="<%=data._id%>" onclick=btnJoin(this.id) data-id="1">
+                        Ask to Join <i class="fa fa-plus"></i></button>
+                    <% } %>
                   </div>
                 </div>
                 <div class="panel-footer community-panel-sideBtn-link">
@@ -151,12 +156,13 @@
               </div>
               <div class="panel-body" style="border:0;border-radius:0;overflow:scroll">
 
-
-                <p class="short-description center-all">
-                  <%= data.Description %>
+                <center>
+                <p class="short-description center-all" >
+                  <%- data.Description %>
                 </p>
+                </center>
                 <div class="full-description">
-                  <%= data.Description %>
+                  <%- data.Description %>
                 </div>
 
               </div>

@@ -2,7 +2,7 @@
 
 <div id="wrapper">
 
-    <% if(user.Role.toLowerCase() != 'superuser' || user.Role.toLowerCase() != 'admin' || user.Switch == 1){ %>
+  <% if(user.Role.toLowerCase() == 'user' || user.Switch == 1){ %>
   <%- include("partials/community/communityMenu",{user: user}) %>
   <% } else { %>
   <%- include partials/admin/adminMenu %>
