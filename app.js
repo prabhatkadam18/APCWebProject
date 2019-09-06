@@ -746,21 +746,6 @@ var communitySchema = new mongoose.Schema({
 var communities = mongoose.model('communities', communitySchema);
 
 
-app.get('/comm',(req,res)=>{
-  var len = 3;
-  var start = 0;
-  communities.find().limit(len).skip(start).populate('Owner').
-  exec(function(err,d){
-    if(err){
-      console.log(err);
-      throw err;
-    }
-    console.log(d);
-  });
-});
-
-
-
 var createCommunitySuccess = 0;
 
 const multerCommunityConf = {
@@ -914,6 +899,7 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
       console.log(err);
       throw err;
     }
+    
     users.find({ CommunitiesRequested: { $in: [comm._id] } }, (err, d) => {
       if (err) {
         console.log(err);
@@ -934,16 +920,17 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
             console.log(err);
             throw err;
           }
-          communities.find({ Members: { $in: [user._id] } }, (err, data)=>{
+          communities.find({ _id: req.params.id, Members: { $in: [user._id] } }, (err, data)=>{
             if(err){
               console.log(err);
               throw err;
             }
             if(data.length != 0){
               isMember = 1;
+              //console.log(data);
             }
             //console.log("isMember: "+isMember+", reqd: "+ request+ ", currUserOwner: "+ currUserOwner);
-            res.render('community/communityprofile', { user: user, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined, isMember: isMember });
+            res.render('community/communityprofile', { user: user, type: type, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined, isMember: isMember });
             request = 0;
             isMember = 0;
             currUserOwner = 0;
