@@ -53,7 +53,7 @@ var userSchema = new mongoose.Schema({
   Role: String,
   DOB: String,
   ProfilePic: String,
-  DateCreated: Date,
+  DateCreated: String,
   Status: String,
   Super: Boolean,
   Active: Boolean,      // Implement in Userlist
@@ -232,7 +232,7 @@ app.get('/adduser', authenticate, function (req, res) {
 });
 
 app.post('/admin/adduser', function (req, res) {
-  //console.log(req.body);
+  //console.log('in Server admin/adduser  ' + req.body.phone);
   userExists = 0;
   users.find({ Email: req.body.username }, (err, data) => {
     if (data.length != 0) {
@@ -266,11 +266,11 @@ app.post('/admin/adduser', function (req, res) {
         console.log("User Inserted");
         userExists = 2;
         delete obj;
+        console.log("User Created Successfully!!");
         res.redirect('/adduser');
       });
     }
   });
-  //alert("User Created Successfully!!");
 
 });
 
@@ -291,7 +291,6 @@ app.get('/admin/profile', authenticate, function (req, res) {
 var passFlag = 0;   // 0: Dont Show any alerts ,  1: Password Changed ,  2: Incorrect Password
 app.get('/changepassword', authenticate, function (req, res) {
   //console.log(passFlag);
-  passFlag = 0;
   res.render('changepassword', { flag: passFlag, user: user });
 });
 
@@ -741,9 +740,30 @@ var communitySchema = new mongoose.Schema({
   DateCreated: String,
   Active: Boolean,
   Members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+<<<<<<< HEAD
+  Requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+  Comments: { type: Array, default:[] }      //Array of Objects
+=======
   Requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]
+>>>>>>> 853d6d72a4e0f2e2ae8ca38b6377a6f631b13163
 });
 var communities = mongoose.model('communities', communitySchema);
+
+
+app.get('/comm',(req,res)=>{
+  var len = 3;
+  var start = 0;
+  communities.find().limit(len).skip(start).populate('Owner').
+  exec(function(err,d){
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    console.log(d);
+  });
+});
+
+
 
 
 var createCommunitySuccess = 0;
@@ -930,7 +950,11 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
               //console.log(data);
             }
             //console.log("isMember: "+isMember+", reqd: "+ request+ ", currUserOwner: "+ currUserOwner);
+<<<<<<< HEAD
+            res.render('community/communityprofile', { user: user, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined, isMember: isMember });
+=======
             res.render('community/communityprofile', { user: user, type: type, data: comm, reqd: request, Owner: owner, currUserOwner: currUserOwner, joined: joined, isMember: isMember });
+>>>>>>> 853d6d72a4e0f2e2ae8ca38b6377a6f631b13163
             request = 0;
             isMember = 0;
             currUserOwner = 0;
@@ -942,6 +966,10 @@ app.get('/community/communityprofile/:id', authenticate, (req, res) => {
 });
 
 
+<<<<<<< HEAD
+app.get('/viewprofile/:id',(req,res)=>{
+  res.render('commuserprofile');
+=======
 app.get('/viewprofile/:id',authenticate,(req,res)=>{
   users.findOne({_id: req.params.id},(err,user)=>{
     if(err){
@@ -950,6 +978,7 @@ app.get('/viewprofile/:id',authenticate,(req,res)=>{
     }
     res.render('commuserprofile', { user: user });
   });
+>>>>>>> 853d6d72a4e0f2e2ae8ca38b6377a6f631b13163
 });
 
 
@@ -973,6 +1002,18 @@ app.post('/leavecommunity', (req, res)=>{
 
 
 
+<<<<<<< HEAD
+////////////////
+app.get('/disc',(req,res)=>{
+  res.render('community/discussion',{user:user});
+});
+
+
+
+
+
+=======
+>>>>>>> 853d6d72a4e0f2e2ae8ca38b6377a6f631b13163
 /////////////////////////////////////////
 
 app.get('/logout', authenticate, (req, res) => {
@@ -988,3 +1029,8 @@ const PORT = 2020;
 app.listen(PORT, function () {
   console.log("Server running on port " + PORT);
 });
+
+
+app.get('*',function(req,res){
+  res.send("DOES NOT EXIST");
+})
